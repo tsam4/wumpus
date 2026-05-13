@@ -1,182 +1,141 @@
-# Running and Testing the Wumpus Tracker
+# Run + Test Guide
 
-## CLI Reference
+This file documents exactly how to run the program, how to interpret outputs, how to run the tests, and the observed results. All model assumptions and dataset parameters are taken from `mini_project.pdf`.
 
+---
+
+## 1) How to Run the Program
+
+**Executable:** `wumpus` (built inside emdw build tree)
+
+**CLI:**
 ```
 wumpus <dataset_dir> <dataset_id> <out_prefix> [--pw v] [--pc v] [--em n]
 ```
 
-| Argument      | Description                                                       | Default     |
-|---------------|-------------------------------------------------------------------|-------------|
-| `dataset_dir` | Path to the dataset directory                                     | (required)  |
-| `dataset_id`  | 1–3; selects known parameters or enables EM mode                  | (required)  |
-| `out_prefix`  | Output file prefix (produces `_marginal.txt`, `_map.txt`)         | (required)  |
-| `--pw v`      | Override detection probability pw                                 | From dataset|
-| `--pc v`      | Override clutter probability pc                                   | From dataset|
-| `--em n`      | Number of EM iterations for parameter learning                    | 0           |
+**Required args:**
+- `dataset_dir`: path to a dataset folder containing `data_file*.txt` grids
+- `dataset_id`: 1..3 (selects known parameters or enables EM mode)
+- `out_prefix`: output file prefix
 
----
+**Optional args:**
+- `--pw v`: override detection probability
+- `--pc v`: override clutter probability
+- `--em n`: run n EM iterations to learn pw/pc
 
-## Running Each Dataset
-
-#### Dataset 1: Known Parameters (5×5 grid, 10 steps)
+**Examples:**
 
 ```bash
+# Dataset 1 (known pw=0.95, pc=0.05)
 src/bin/wumpus /path/to/Datasets/dataset1 1 out_d1
-```
 
-- pw = 0.95, pc = 0.05 (hardcoded)
-- No learning required
-- Output: `out_d1_marginal.txt`, `out_d1_map.txt`
-
-#### Dataset 2: Known Parameters (20×20 grid, 20 steps)
-
-```bash
+# Dataset 2 (known pw=0.95, pc=0.05)
 src/bin/wumpus /path/to/Datasets/dataset2 2 out_d2
-```
 
-- pw = 0.95, pc = 0.05 (hardcoded)
-- Output: `out_d2_marginal.txt`, `out_d2_map.txt`
-
-#### Dataset 3: Unknown pw/pc (10×20 grid, 20 steps)
-
-```bash
+# Dataset 3 (unknown pw/pc — EM learning)
 src/bin/wumpus /path/to/Datasets/dataset3 3 out_d3 --em 10
 ```
 
-- pw/pc unknown; learned via EM (10 iterations recommended)
-- Output: `out_d3_marginal.txt`, `out_d3_map.txt`
+---
+
+## 2) File Roles
+
+| File | Role |
+|------|------|
+| `src/wumpus.cc` | Main: argument parsing, dataset loading, EM loop, output writing |
+| `src/wumpus_model.cc` | Model: transitions, emissions, BP pipeline, Viterbi MAP |
+| `include/wumpus.hpp` | Core data structures: `Grid`, `DatasetConfig`, `InferenceResult` |
+| `include/wumpus_model.hpp` | Function declarations for model helpers |
+| `tests_basic/test_transition.cc` | Unit test: transition model boundary conditions |
+| `tests_basic/test_emission.cc` | Unit test: emission log-likelihood correctness |
+| `tests_basic/test_parser.cc` | Unit test: grid file parsing and dataset loading |
+| `tests_basic/test_emdw_bp.cc` | Unit test: BP factor construction + marginals sum to 1 |
+| `tests_advanced/test_e2e_sim.cc` | Integration test: end-to-end accuracy on simulated data |
+| `tests_advanced/test_em_extremes.cc` | Integration test: EM stability on degenerate observations |
+| `tests_advanced/test_dataset2_scale.cc` | Performance test: timing + memory on 20×20 grid |
 
 ---
 
-## Makefile Targets
+## 3) Output Files and Interpretation
 
+Each run produces **two output files**:
+
+| File | Contents |
+|------|----------|
+| `<out_prefix>_marginal.txt` | Per-timestep argmax of posterior marginals: `P(X_t = s | Z_1:T)` |
+| `<out_prefix>_map.txt` | Viterbi MAP trajectory: `argmax P(X_1:T | Z_1:T)` |
+
+Each line is `x y` (column, row), zero-indexed, top-left origin — matching the ground-truth format in `mini_project.pdf`.
+
+**Outputs from the reference run:**
+
+```
+out_d1_marginal.txt   (10 lines) ← matches ground truth
+out_d1_map.txt        (10 lines) ← matches ground truth
+out_d2_marginal.txt   (20 lines)
+out_d2_map.txt        (20 lines)
+out_d3_marginal.txt   (20 lines) ← EM converged
+out_d3_map.txt        (20 lines) ← EM converged
+```
+
+---
+
+## 4) How to Run Tests
+
+All tests are built inside the emdw build tree as separate executables.
+
+**Build:**
 ```bash
-make build          # Build wumpus executable
-make test           # Run basic unit tests
-make test-advanced  # Run advanced integration tests
-make test-all       # Run all tests
-make run            # Run datasets 1–3
-make run-d1         # Run dataset 1 only
-make run-d2         # Run dataset 2 only
-make run-d3         # Run dataset 3 only
-make accuracy       # Compare dataset1 output against ground truth
-make summary        # Print run summary
-make all            # Full pipeline: build + test + run + accuracy + summary
-make clean          # Remove generated files and outputs
-```
-
----
-
-## Output Files
-
-```
-out_d1_marginal.txt    (10 lines)
-out_d1_map.txt
-out_d2_marginal.txt    (20 lines)
-out_d2_map.txt
-out_d3_marginal.txt    (20 lines)
-out_d3_map.txt
-```
-
-Each file contains one `x y` coordinate pair per line.
-
----
-
-## Unit Tests
-
-### Basic Tests (`make test`)
-
-- **test_parser.cc**: Grid file I/O — loads `data_file*.txt`, validates dimensions and values
-- **test_emission.cc**: Emission model — verifies log-likelihoods for known pw/pc
-- **test_transition.cc**: Transition model — verifies boundary probabilities (corner, edge, interior cells)
-- **test_emdw_bp.cc**: BP factor construction — builds and runs LBP on a small 2-timestep chain
-
-### Advanced Tests (`make test-advanced`)
-
-- **test_e2e_sim.cc**: End-to-end accuracy — simulates a Wumpus trajectory, runs inference, checks accuracy
-- **test_em_extremes.cc**: EM stability — verifies convergence on degenerate grids (all-0 or all-1 detections)
-- **test_dataset2_scale.cc**: Performance test — runs inference on a 20×20 grid, checks memory usage (~15.5 MB)
-
-### Adding Tests to CMakeLists.txt
-
-```cmake
-# Add symlink for test source
-ln -s /path/to/tests/test_mytest.cc $EMDW_ROOT/src/bin/test_mytest.cc
-
-# In emdw/src/bin/CMakeLists.txt, add:
-add_executable(test_mytest test_mytest.cc wumpus_model.cc)
-target_include_directories(test_mytest PRIVATE /path/to/include)
-target_link_libraries(test_mytest emdw)
-```
-
-### Running Tests via CMake
-
-```bash
-cd $EMDW_ROOT/build
-cmake ../; make -j7 \
-         test_parser test_emission test_transition test_emdw_bp \
+cd ~/devel/emdw/build
+cmake ../
+make -j7 wumpus test_transition test_emission test_parser test_emdw_bp \
          test_dataset2_scale test_em_extremes test_e2e_sim
+```
 
-src/bin/test_parser
-src/bin/test_emission
+**Run basic tests:**
+```bash
 src/bin/test_transition
+src/bin/test_emission
+src/bin/test_parser
 src/bin/test_emdw_bp
-src/bin/test_e2e_sim
+```
+
+**Run advanced tests:**
+```bash
+src/bin/test_dataset2_scale /path/to/Datasets/dataset2
 src/bin/test_em_extremes
-src/bin/test_dataset2_scale
+src/bin/test_e2e_sim
 ```
 
-### One-Line Test Suite
-
-```bash
-src/bin/test_parser && \
-src/bin/test_emission && \
-src/bin/test_transition && \
-src/bin/test_emdw_bp && \
-src/bin/test_e2e_sim && \
-src/bin/test_em_extremes && \
-src/bin/test_dataset2_scale && \
-echo "All tests passed"
-```
+**Interpreting test output:**
+- Most tests produce no output if all assertions pass.
+- `test_dataset2_scale` prints one line with runtime and memory:
+  ```
+  dataset2 bp_ms=<ms> map_ms=<ms> maxrss=<bytes>
+  ```
+  On macOS, `ru_maxrss` is in bytes. On Linux it is in kilobytes.
 
 ---
 
-## Test Outputs
+## 5) Test Results (Reference Run)
 
-| Test                    | Input                                          | Pass Indicator                    |
-|-------------------------|------------------------------------------------|-----------------------------------|
-| **test_parser**         | `dataset1/data_file*.txt`                      | "PASS" + grid dimensions          |
-| **test_emission**       | Synthetic grid, pw=0.95 pc=0.05                | Log-likelihoods within tolerance  |
-| **test_transition**     | 5×5 grid boundary cases                        | Probabilities sum to 1.0          |
-| **test_emdw_bp**        | 2-step HMM chain                               | Posteriors sum to 1.0             |
-| **test_e2e_sim**        | Simulated trajectory                           | Accuracy > threshold              |
-| **test_em_extremes**    | Degenerate grids                               | No NaN, params in valid range     |
-| **test_dataset2_scale** | 20×20 grid, 20 steps                           | Memory ≤ 16 MB, runtime < 5 s    |
+**Build result:** Success, no compiler warnings from test targets.
 
----
+**Runtime result:** All tests exited with code 0.
 
-## Accuracy Check
-
-After running dataset1:
-
-```bash
-python3 scripts/compute_accuracy.py \
-  "/path/to/Ground truth/wumpus_trajectory.txt" \
-  out_d1_marginal.txt \
-  out_d1_map.txt
+```
+observed output from test_dataset2_scale:
+dataset2 bp_ms=153 map_ms=0 maxrss=16056320
 ```
 
----
+**Dataset 1 validation:**
 
-## Result Status
+```
+out_d1_map.txt      → matches ground truth exactly (diff empty)
+out_d1_marginal.txt → matches ground truth exactly (diff empty)
+```
 
-| Test                  | Status | Notes                                          |
-|-----------------------|--------|------------------------------------------------|
-| **Parser**            | ✅ Pass | File loading correct for all grid sizes        |
-| **Emission model**    | ✅ Pass | Log-likelihoods correct                        |
-| **Transition model**  | ✅ Pass | Boundary probabilities correct                 |
-| **emdw BP**           | ✅ Pass | Posteriors normalise correctly                 |
-| **E2E simulation**    | ✅ Pass | Accuracy above threshold                       |
-| **EM extremes**       | ✅ Pass | Stable on degenerate inputs                    |
-| **Dataset2 scale**    | ✅ Pass | Performance efficient for 20×20 grid           |
+**Notes:**
+- Dataset 2 has no ground truth provided; runtime was checked only.
+- Dataset 3 has no ground truth provided; output generation and EM convergence were checked only.
+- `test_e2e_sim.cc` asserts accuracy ≥ 0.8 on a deterministic mock scenario; it passed.

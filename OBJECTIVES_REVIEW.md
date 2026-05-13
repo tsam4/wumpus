@@ -27,7 +27,7 @@
 - ✅ Hidden Markov Model for state tracking (random walk with boundary failure)
 - ✅ Sum-product BP inference via emdw for marginal trajectories
 - ✅ Viterbi algorithm for MAP trajectories (max-product equivalent)
-- ✅ EM algorithm for unknown detection parameters ($p_w$, $p_c$)
+- ✅ EM algorithm for unknown detection parameters (pw, pc)
 - ✅ Numerical stability (clamping, log-space computation)
 - ✅ Support for datasets 1–3 with dataset-specific parameters
 
@@ -55,12 +55,12 @@
    - Tests: uniform transitions on valid neighbors, accumulated self-transitions on boundaries
 
 2. `tests_basic/test_emission.cc` (911B)
-   - ✅ Validates $p_w$ (true cell detection probability)
-   - ✅ Validates $p_c$ (clutter detection probability)
+   - ✅ Validates pw (true cell detection probability)
+   - ✅ Validates pc (clutter detection probability)
    - Tests: correct likelihood computation for mock 3×3 grid
 
 3. `tests_basic/test_parser.cc` (1.1K)
-   - ✅ Validates grid file parsing (data_file\*.txt format)
+   - ✅ Validates grid file parsing (data_file*.txt format)
    - ✅ Validates dataset loading and field initialization
    - Tests: correct grid dimensions, timestamp sequences, parsing robustness
 
@@ -95,7 +95,7 @@ Command: cd ~/devel/emdw/build &&
          src/bin/test_emission &&
          src/bin/test_parser &&
          src/bin/test_emdw_bp &&
-         src/bin/test_dataset2_scale /path/to/dataset2 &&
+         src/bin/test_dataset2_scale /path/to/Datasets/dataset2 &&
          src/bin/test_em_extremes &&
          src/bin/test_e2e_sim
 
@@ -126,23 +126,23 @@ Result: ✅ ALL TESTS PASSED
 
 **README.md – Technical Blueprint:**
 
-| Level | Content                                                                      | Status                                                    |
-| ----- | ---------------------------------------------------------------------------- | --------------------------------------------------------- |
-| **1** | Domain definition, dataset table, coordinate convention                      | ✅ Complete with dataset parameters from mini_project.pdf |
-| **2** | PGM theory: HMM structure, transition & emission models with LaTeX equations | ✅ Complete with formal mathematical notation             |
-| **3** | emdw integration: factors, cluster graphs, BP, Viterbi                       | ✅ Complete with API references and workflow              |
-| **4** | Edge cases: EM derivation, numerical stability                               | ✅ Complete with step-by-step EM formulas                 |
-| **5** | Compilation & execution: build steps, CLI reference, test procedures         | ✅ Complete with code blocks and command sequences        |
+| Level | Content | Status |
+|-------|---------|--------|
+| **1** | Domain definition, dataset table, coordinate convention | ✅ Complete |
+| **2** | PGM theory: HMM structure, transition & emission models with LaTeX equations | ✅ Complete |
+| **3** | emdw integration: factors, cluster graphs, BP, Viterbi | ✅ Complete |
+| **4** | Edge cases: EM derivation, numerical stability | ✅ Complete |
+| **5** | Compilation & execution: build steps, CLI reference, test procedures | ✅ Complete |
 
 **RUN_AND_TESTS.md – Execution & Validation Guide:**
 
-| Section | Content                                                                          | Status                                         |
-| ------- | -------------------------------------------------------------------------------- | ---------------------------------------------- |
-| **1**   | CLI reference with example commands for all 3 datasets                           | ✅ Complete with full paths and parameter sets |
-| **2**   | File roles: source code, tests, headers, purpose per file                        | ✅ Complete with tabular layout                |
-| **3**   | Output format interpretation (marginal vs MAP, coordinate convention)            | ✅ Complete with format specification          |
-| **4**   | Test execution procedures: build commands, run commands, output interpretation   | ✅ Complete with command blocks and exit codes |
-| **5**   | Test results: all tests pass, dataset1 matches ground truth, performance metrics | ✅ Complete with validation summary            |
+| Section | Content | Status |
+|---------|---------|--------|
+| **1** | CLI reference with example commands for datasets 1–3 | ✅ Complete |
+| **2** | File roles: source code, tests, headers, purpose per file | ✅ Complete |
+| **3** | Output format interpretation (marginal vs MAP, coordinate convention) | ✅ Complete |
+| **4** | Test execution procedures: build commands, run commands, output interpretation | ✅ Complete |
+| **5** | Test results: all tests pass, dataset1 matches ground truth, performance metrics | ✅ Complete |
 
 **Documentation Features:**
 
@@ -165,11 +165,11 @@ Result: ✅ ALL TESTS PASSED
 
 **Dataset Execution Summary:**
 
-| Dataset      | Grid  | Steps | Command                           | Status      | Validation                                             |
-| ------------ | ----- | ----- | --------------------------------- | ----------- | ------------------------------------------------------ |
-| **dataset1** | 5×5   | 10    | `wumpus dataset1 1 out_d1`        | ✅ Complete | ✅ MAP matches GT exactly, Marginal matches GT exactly |
-| **dataset2** | 20×20 | 20    | `wumpus dataset2 2 out_d2`        | ✅ Complete | ✅ Output format valid (20 lines)                      |
-| **dataset3** | 10×20 | 20    | `wumpus dataset3 3 out_d3 --em 6` | ✅ Complete | ✅ Output format valid (20 lines), EM converged        |
+| Dataset | Grid | Steps | Command | Status | Validation |
+|---------|------|-------|---------|--------|------------|
+| **dataset1** | 5×5 | 10 | `wumpus dataset1 1 out_d1` | ✅ Complete | ✅ MAP matches GT exactly, Marginal matches GT exactly |
+| **dataset2** | 20×20 | 20 | `wumpus dataset2 2 out_d2` | ✅ Complete | ✅ Output format valid (20 lines) |
+| **dataset3** | 10×20 | 20 | `wumpus dataset3 3 out_d3 --em 10` | ✅ Complete | ✅ Output format valid (20 lines), EM converged |
 
 **Generated Output Files (6 total):**
 
@@ -191,8 +191,8 @@ out_d1_map:    2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
 Result: ✅ PERFECT MATCH
 
 Dataset1 Marginal validation:
-Ground truth:          2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
-out_d1_marginal.txt:   2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
+Ground truth:        2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
+out_d1_marginal.txt: 2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
 Result: ✅ PERFECT MATCH
 ```
 
@@ -200,9 +200,9 @@ Result: ✅ PERFECT MATCH
 
 ```
 Dataset2 (largest grid):
-  BP inference time:     119 ms
+  BP inference time:     153 ms
   Viterbi MAP time:      0 ms (< 1 ms)
-  Memory (maxrss):       16,236,544 bytes (~15.5 MB)
+  Memory (maxrss):       16,056,320 bytes (~15.3 MB)
   Status: ✅ Efficient
 ```
 
@@ -218,13 +218,11 @@ Dataset2 (largest grid):
 
 ## Summary
 
-| Objective                          | Status      | Evidence                                                                                 |
-| ---------------------------------- | ----------- | ---------------------------------------------------------------------------------------- |
-| **1. Robust Implementation**       | ✅ COMPLETE | 4 source files, all features implemented per mini_project.pdf, compiles without warnings |
-| **2. Comprehensive Testing**       | ✅ COMPLETE | 7 test files, all passing (exit 0), 2-tier architecture, 80%+ accuracy achieved          |
-| **3. Complete Documentation**      | ✅ COMPLETE | 2 markdown files, technical blueprint, execution guide with examples                     |
-| **4. Full Execution & Validation** | ✅ COMPLETE | 3 datasets executed, 6 output files generated, dataset1 matches ground truth exactly     |
+| Objective | Status | Evidence |
+|-----------|--------|----------|
+| **1. Robust Implementation** | ✅ COMPLETE | 4 source files, all features implemented per mini_project.pdf |
+| **2. Comprehensive Testing** | ✅ COMPLETE | 7 test files, all passing (exit 0), 2-tier architecture |
+| **3. Complete Documentation** | ✅ COMPLETE | README.md + RUN_AND_TESTS.md, full coverage |
+| **4. Full Execution & Validation** | ✅ COMPLETE | 3 datasets executed, 6 output files, dataset1 GT match |
 
-### Final Status: ✅ **ALL FOUR OBJECTIVES SUCCESSFULLY COMPLETED**
-
-All deliverables are functional, tested, documented, and validated. The wumpus tracker is ready for evaluation.
+### Final Status: ✅ ALL FOUR OBJECTIVES SUCCESSFULLY COMPLETED

@@ -1,30 +1,30 @@
-Run + Test Guide (post-execution)
+Run + Test Guide
 
-This file documents exactly how the program was run, how to interpret outputs, how to run the tests, and the observed results from this run on 6 May 2026. All model assumptions and dataset parameters are taken from mini_project.pdf.
+This file documents exactly how to run the program, how to interpret outputs, how to run the tests, and the observed results. All model assumptions and dataset parameters are taken from mini_project.pdf.
 
-1) How to run the program
+
+1) HOW TO RUN THE PROGRAM
+
 Executable: wumpus (built inside emdw)
 CLI:
-  wumpus <dataset_dir> <dataset_id> <out_prefix> [--pw v] [--pc v] [--em n] [--occ prior]
+  wumpus <dataset_dir> <dataset_id> <out_prefix> [--pw v] [--pc v] [--em n]
 
 Required args:
 - dataset_dir: path to a dataset folder containing data_file*.txt grids
-- dataset_id: 1..5 (selects known parameters or enables EM/occupancy)
+- dataset_id: 1..3 (selects known parameters or enables EM mode)
 - out_prefix: output file prefix
 
 Examples actually executed:
 - dataset1 (known pw=0.95, pc=0.05):
-  src/bin/wumpus /Users/taros/Documents/DE424MP/Datasets-20260506/dataset1 1 /Users/taros/Documents/DE424MP/out_d1
-- dataset2 (known pw=0.90, pc=0.10):
-  src/bin/wumpus /Users/taros/Documents/DE424MP/Datasets-20260506/dataset2 2 /Users/taros/Documents/DE424MP/out_d2
+  src/bin/wumpus /path/to/Datasets/dataset1 1 out_d1
+- dataset2 (known pw=0.95, pc=0.05):
+  src/bin/wumpus /path/to/Datasets/dataset2 2 out_d2
 - dataset3 (unknown pw/pc):
-  src/bin/wumpus /Users/taros/Documents/DE424MP/Datasets-20260506/dataset3 3 /Users/taros/Documents/DE424MP/out_d3 --em 6
-- dataset4 (unknown occupied cells):
-  src/bin/wumpus /Users/taros/Documents/DE424MP/Datasets-20260506/dataset4 4 /Users/taros/Documents/DE424MP/out_d4 --em 6
-- dataset5 (unknown pw/pc + occupancy):
-  src/bin/wumpus /Users/taros/Documents/DE424MP/Datasets-20260506/dataset5 5 /Users/taros/Documents/DE424MP/out_d5 --em 8
+  src/bin/wumpus /path/to/Datasets/dataset3 3 out_d3 --em 10
 
-2) File roles (what does what)
+
+2) FILE ROLES
+
 - src/wumpus.cc: main program. Builds factors, runs BP, updates parameters, writes outputs.
 - src/wumpus_model.cc: shared helpers for IO, transitions, emissions, Viterbi MAP.
 - include/wumpus.hpp: shared structs (Grid, DatasetConfig).
@@ -32,42 +32,42 @@ Examples actually executed:
 - tests_basic/: minimal unit-level tests for core constraints.
 - tests_advanced/: stress and edge-case tests.
 
-3) Output files and interpretation
+
+3) OUTPUT FILES AND INTERPRETATION
+
 Program outputs two files per run:
-- <out_prefix>_marginal.txt: per-time-step argmax of marginals p(X_t | Z_1:T)
+- <out_prefix>_marginal.txt: per-time-step argmax of marginals P(X_t | Z_1:T)
 - <out_prefix>_map.txt: MAP path from Viterbi (max-product equivalent)
 
-Each line is "x y" (x = column, y = row), zero-indexed, top-left origin, matching the ground-truth format in mini_project.pdf (see dataset1 ground truth).
+Each line is "x y" (x = column, y = row), zero-indexed, top-left origin,
+matching the ground-truth format in mini_project.pdf.
 
-Outputs from this run:
-- out_d1_marginal.txt
-- out_d1_map.txt
-- out_d2_marginal.txt
-- out_d2_map.txt
-- out_d3_marginal.txt
-- out_d3_map.txt
-- out_d4_marginal.txt
-- out_d4_map.txt
-- out_d5_marginal.txt
-- out_d5_map.txt
+Outputs from the reference run:
+- out_d1_marginal.txt  (10 lines)
+- out_d1_map.txt       (10 lines)
+- out_d2_marginal.txt  (20 lines)
+- out_d2_map.txt       (20 lines)
+- out_d3_marginal.txt  (20 lines) [EM]
+- out_d3_map.txt       (20 lines) [EM]
 
-4) How to run tests
-All tests were built and run inside emdw as separate executables. Commands used:
+
+4) HOW TO RUN TESTS
+
+All tests were built and run inside emdw as separate executables.
 
 Build:
   cd ~/devel/emdw/build
   cmake ../
   make -j7 wumpus test_transition test_emission test_parser test_emdw_bp \
-           test_dataset2_scale test_em_extremes test_occ_prior_stress test_e2e_sim
+           test_dataset2_scale test_em_extremes test_e2e_sim
 
 Run:
   src/bin/test_transition
   src/bin/test_emission
   src/bin/test_parser
   src/bin/test_emdw_bp
-  src/bin/test_dataset2_scale /Users/taros/Documents/DE424MP/Datasets-20260506/dataset2
+  src/bin/test_dataset2_scale /path/to/Datasets/dataset2
   src/bin/test_em_extremes
-  src/bin/test_occ_prior_stress
   src/bin/test_e2e_sim
 
 Interpreting test outputs:
@@ -76,7 +76,9 @@ Interpreting test outputs:
   "dataset2 bp_ms=<ms> map_ms=<ms> maxrss=<value>"
   On macOS, ru_maxrss is in bytes; on Linux it is typically in kilobytes.
 
-5) Test results from this run
+
+5) TEST RESULTS FROM REFERENCE RUN
+
 Build result: success, no compiler warnings from test targets.
 
 Runtime result: all tests exited with code 0.
@@ -88,6 +90,6 @@ Dataset1 output validation:
 - out_d1_marginal.txt also matches the provided ground truth exactly.
 
 Notes:
-- dataset2 has no ground truth in the workspace yet, so only runtime was checked.
-- datasets 3-5 also have no ground truth in the workspace, so only output generation was checked.
+- Dataset2 has no ground truth provided; runtime was checked only.
+- Dataset3 has no ground truth provided; output generation and EM convergence checked only.
 - tests_advanced/test_e2e_sim.cc asserts accuracy >= 0.8 on a deterministic mock scenario; it passed.
