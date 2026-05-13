@@ -1,23 +1,22 @@
 // ============================================================================
-// Wumpus Tracker: Main HMM Inference with Optional EM Learning
+// Wumpus Tracker: HMM Marginal Inference via Belief Propagation
 // ============================================================================
 //
 // This is the main program for the DE424 Wumpus Tracking mini-project.
-// It implements a complete Hidden Markov Model (HMM) solution with:
+// It implements a Hidden Markov Model (HMM) solution using:
 //
 // 1. Hidden state: X_t in {0..M*N-1}, representing Wumpus position (grid cell)
 // 2. Observations: Z_t, grid of binary detections at timestep t
 // 3. Transition model: random walk with failure (per mini_project.pdf)
 // 4. Emission model: noisy detections with pw (true cell) and pc (clutter)
-// 5. Inference: Belief Propagation (marginals) + Viterbi (MAP trajectory)
+// 5. Inference: Belief Propagation (sum-product) to compute marginals
 // 6. Learning: EM for unknown pw/pc (dataset 3 only)
 //
 // Workflow:
 // - Load observation grids from dataset files
-// - Run inference with given (or learned) parameters
-// - Output two trajectories:
-//   - _marginal.txt: argmax of per-timestep marginals
-//   - _map.txt: most likely complete path (Viterbi)
+// - Run BP inference with given (or learned) parameters
+// - Output one trajectory:
+//   - _marginal.txt: argmax of per-timestep marginals P(X_t | Z_1:T)
 //
 // ============================================================================
 
@@ -53,9 +52,9 @@ using DT = DiscreteTable<T>;    // Factor implementation
 // Change these flags at the top of this file to control dataset and output options
 
 // Which dataset to process (1-3)
-// 1: 5×5 grid, 10 steps, pw=0.95, pc=0.05 (known params)
-// 2: 20×20 grid, 20 steps, pw=0.90, pc=0.10 (known params)
-// 3: 10×20 grid, 20 steps, unknown pw/pc (learned via EM)
+// 1: 5x5 grid, 10 steps, pw=0.95, pc=0.05 (known params)
+// 2: 20x20 grid, 20 steps, pw=0.90, pc=0.10 (known params)
+// 3: 10x20 grid, 20 steps, unknown pw/pc (learned via EM)
 static const int ACTIVE_DATASET = 3;
 
 // Output directory for results (should match the dataset)
@@ -84,52 +83,13 @@ static string get_output_prefix(int dataset_id) {
 }
 
 // ============================================================================
-// Factor Construction Utilities
-// ============================================================================
-
-static rcptr<Factor> make_unary_factor(
-    RVIdType var,
-    const rcptr<vector<T>>& dom,
-    const vector<double>& probs) {
-  map<vector<T>, FProb> sparse;
-  for (int i = 0; i < (int)probs.size(); ++i) {
-    if (probs[i] <= 0.0) continue;
-    sparse[{T(i)}] = probs[i];
-  }
-  return uniqptr<DT>(new DT({var}, {dom}, 0.0, sparse));
-}
-
-static rcptr<Factor> make_transition_factor(
-    RVIdType next_var,
-    RVIdType prev_var,
-    const rcptr<vector<T>>& dom,
-    const vector<vector<pair<int, double>>>& adj) {
-  map<vector<T>, FProb> sparse;
-  for (int prev = 0; prev < (int)adj.size(); ++prev) {
-    for (const auto& kv : adj[prev]) {
-      int next = kv.first;
-      double p = kv.second;
-      if (p <= 0.0) continue;
-      sparse[{T(next), T(prev)}] = p;
-    }
-  }
-  return uniqptr<DT>(new DT({next_var, prev_var}, {dom, dom}, 0.0, sparse));
-}
-
-static double prob_from_factor(const rcptr<Factor>& f, RVIdType var, int val) {
-  const DT* dt = dynamic_cast<const DT*>(f.get());
-  if (!dt) return 0.0;
-  return dt->potentialAt({var}, {T(val)});
-}
-
-// ============================================================================
 // Output Utilities
 // ============================================================================
 
 // write_path: write trajectory to file in required format
 //
 // File format (per mini_project.pdf):
-// Each line: x y (comma/space-separated coordinates, zero-indexed)
+// Each line: x y (space-separated coordinates, zero-indexed)
 //
 static void write_path(const string& path, const vector<int>& states, int cols) {
   ofstream out(path);
@@ -148,9 +108,9 @@ static void write_path(const string& path, const vector<int>& states, int cols) 
 //
 // Per mini_project.pdf Table in Section "Problem statement":
 //
-// - dataset1: 5×5, 10 steps, pw=0.95, pc=0.05 (known params)
-// - dataset2: 20×20, 20 steps, pw=0.90, pc=0.10 (known params)
-// - dataset3: 10×20, 20 steps, pw/pc unknown (learned via EM, 6 iterations)
+// - dataset1: 5x5, 10 steps, pw=0.95, pc=0.05 (known params)
+// - dataset2: 20x20, 20 steps, pw=0.90, pc=0.10 (known params)
+// - dataset3: 10x20, 20 steps, pw/pc unknown (learned via EM, 6 iterations)
 //
 static DatasetConfig dataset_defaults(int id) {
   DatasetConfig cfg;
@@ -197,7 +157,7 @@ static void parse_overrides(int argc, char** argv, DatasetConfig* cfg) {
 }
 
 // ============================================================================
-// Main Program: HMM Inference with Optional EM Learning
+// Main Program: HMM Marginal Inference with Optional EM Learning
 // ============================================================================
 
 int main(int argc, char** argv) {
@@ -239,7 +199,7 @@ int main(int argc, char** argv) {
   // Extract grid dimensions
   int rows = obs[0].rows;
   int cols = obs[0].cols;
-  int n = rows * cols;        // total number of cells
+  int n = rows * cols;             // total number of cells
   int t_steps = (int)obs.size();  // number of timesteps
 
   // Initialize emdw RV domain and identifiers
@@ -252,69 +212,50 @@ int main(int argc, char** argv) {
   for (int t = 0; t < t_steps; ++t) x_ids[t] = RVIdType(t);
 
   // =========================================================================
-  // LEARNING PHASE: Run EM if parameters need to be learned
+  // INFERENCE PHASE: BP marginals (with optional EM parameter learning)
   // =========================================================================
 
-  vector<vector<double>> gamma;      // posteriors: gamma[t][s] = P(X_t=s|Z_1:T)
-  vector<vector<double>> emis_log;   // log emission probabilities for Viterbi
+  vector<vector<double>> gamma;  // gamma[t][s] = P(X_t=s | Z_1:T)
 
   if (cfg.max_iters == 0) {
-    // No learning: just run inference with given parameters
-    BPInferenceResult inf_result = run_bp_inference(obs, x_ids, state_dom,
-        cfg.pw, cfg.pc);
-    gamma = inf_result.gamma;
-    emis_log = inf_result.emis_log;
+    // No learning: run single BP pass with given parameters
+    gamma = run_bp_inference(obs, x_ids, state_dom, cfg.pw, cfg.pc).gamma;
   } else {
-    // Run EM iterations for dataset 3 (learn pw/pc)
+    // EM: alternating E-step (BP) and M-step (parameter update)
     for (int iter = 0; iter < cfg.max_iters; ++iter) {
-      // --- E-Step: Compute posteriors with current parameters ---
-      BPInferenceResult inf_result = run_bp_inference(obs, x_ids, state_dom,
-          cfg.pw, cfg.pc);
-      gamma = inf_result.gamma;
-      emis_log = inf_result.emis_log;
+      // --- E-Step: compute posteriors with current parameters ---
+      gamma = run_bp_inference(obs, x_ids, state_dom, cfg.pw, cfg.pc).gamma;
 
-      // --- M-Step: Update pw and pc ---
+      // --- M-Step: update pw and pc from expected sufficient statistics ---
       double true_det = 0.0;
       double clutter_det = 0.0;
-      
+
       for (int t = 0; t < t_steps; ++t) {
         int total_det = 0;
         for (int k = 0; k < n; ++k) total_det += obs[t].cells[k];
-        
+
         double exp_true_det = 0.0;
         for (int s = 0; s < n; ++s) {
           if (obs[t].cells[s] == 1) exp_true_det += gamma[t][s];
         }
-        
+
         true_det += exp_true_det;
         clutter_det += (double)total_det - exp_true_det;
       }
-      
-      double pw_new = true_det / (double)t_steps;
-      double pc_new = clutter_det / (double)(t_steps * (n - 1));
-      cfg.pw = clamp_prob(pw_new);
-      cfg.pc = clamp_prob(pc_new);
+
+      cfg.pw = clamp_prob(true_det / (double)t_steps);
+      cfg.pc = clamp_prob(clutter_det / (double)(t_steps * (n - 1)));
     }  // end EM loop
 
-    // --- Final BP Pass with learned parameters ---
-    BPInferenceResult inf_result = run_bp_inference(obs, x_ids, state_dom,
-        cfg.pw, cfg.pc);
-    gamma = inf_result.gamma;
-    emis_log = inf_result.emis_log;
+    // Final BP pass with learned parameters
+    gamma = run_bp_inference(obs, x_ids, state_dom, cfg.pw, cfg.pc).gamma;
   }
 
   // =========================================================================
-  // OUTPUT PHASE: Generate and write trajectories
+  // OUTPUT PHASE: argmax of marginals -> trajectory file
   // =========================================================================
 
-  // Prepare transition model and prior for trajectory extraction
-  vector<vector<pair<int, double>>> adj = build_transition_adj(rows, cols);
-  vector<double> prior_log(n, 0.0);
-  for (int s = 0; s < n; ++s) {
-    prior_log[s] = log(1.0);  // uniform prior
-  }
-
-  // Extract marginal trajectory: argmax_s P(X_t=s | Z_1:T) at each time
+  // Marginal trajectory: argmax_s P(X_t=s | Z_1:T) at each timestep
   vector<int> marginal_path(t_steps, 0);
   for (int t = 0; t < t_steps; ++t) {
     int best = 0;
@@ -328,12 +269,7 @@ int main(int argc, char** argv) {
     marginal_path[t] = best;
   }
 
-  // Extract MAP trajectory: argmax_{X_1:T} P(X_1:T | Z_1:T) using Viterbi
-  vector<int> map_path = viterbi_path(adj, emis_log, prior_log);
-
-  // Write output files
   write_path(out_prefix + "_marginal.txt", marginal_path, cols);
-  write_path(out_prefix + "_map.txt", map_path, cols);
 
   return 0;
 }

@@ -17,7 +17,7 @@
 // 3. Grid file I/O and dataset loading
 // 4. Transition model construction (random walk with boundary failure)
 // 5. Emission model computation (noisy detections)
-// 6. MAP inference via Viterbi algorithm
+// 6. Belief Propagation inference (marginal posteriors)
 //
 // ============================================================================
 
@@ -27,12 +27,15 @@
 // Grid uses row-major order: index = y * cols + x
 // where (x, y) represents column x and row y, both 0-indexed.
 
-// linear_to_coord: convert cell index to (x, y) grid coordinates
-// Example: 5x5 grid, index=17 -> x=2, y=3 (since 17 = 3*5 + 2)
+// coord_x: convert cell index to column coordinate
+// Example: 5x5 grid, index=17 -> x=2 (since 17 = 3*5 + 2)
 inline int coord_x(int index, int cols) { return index % cols; }
+
+// coord_y: convert cell index to row coordinate
+// Example: 5x5 grid, index=17 -> y=3
 inline int coord_y(int index, int cols) { return index / cols; }
 
-// coord_to_linear: convert grid coordinates to cell index
+// coord_to_index: convert grid coordinates to cell index
 // Example: 5x5 grid, x=2, y=3 -> index=17
 inline int coord_to_index(int x, int y, int cols) { return y * cols + x; }
 
@@ -97,14 +100,13 @@ std::vector<std::vector<std::pair<int, double>>> build_transition_adj(
 //
 // Where for each cell k:
 //   if k == s (true cell):
-//     P(z_k=1 | X_t=s) = pw   (detection prob)
-//     P(z_k=0 | X_t=s) = 1-pw (miss prob)
+//     P(z_k=1 | X_t=s) = pw   (detection probability)
+//     P(z_k=0 | X_t=s) = 1-pw (miss probability)
 //   else (clutter):
-//     P(z_k=1 | X_t=s) = pc   (clutter detection prob)
-//     P(z_k=0 | X_t=s) = 1-pc (true negative prob)
+//     P(z_k=1 | X_t=s) = pc   (clutter detection probability)
+//     P(z_k=0 | X_t=s) = 1-pc (true negative probability)
 //
 // Returns vector logp[s] = log p(Z_t | X_t=s) for all states s
-//   Used in factors for BP and in Viterbi algorithm
 std::vector<double> compute_emission_log(
     const Grid& obs,
     double pw,
@@ -116,74 +118,39 @@ std::vector<double> compute_emission_log(
 //   probs[i] = exp(logp[i] - max_log)
 //
 // This subtracts the maximum log value before exponentiating, keeping
-// exponent values in a reasonable range. After normalization, the relative
+// exponent values in a reasonable range. After normalization, relative
 // probabilities are preserved.
 //
 // Critical for BP factor construction: converts log-likelihoods into
 // probability values that can be used in DiscreteTable factors
 std::vector<double> scale_from_log(const std::vector<double>& logp);
 
-// Belief Propagation Inference Helpers
-// =====================================
+// Belief Propagation Inference
+// ============================
 
 // BPInferenceResult: holds outputs from a single BP inference pass
 struct BPInferenceResult {
-  std::vector<std::vector<double>> gamma;     // gamma[t][s] = P(X_t=s | Z_1:T)
-  std::vector<std::vector<double>> emis_log;  // emis_log[t][s] = log p(Z_t|X_t=s)
+  std::vector<std::vector<double>> gamma;  // gamma[t][s] = P(X_t=s | Z_1:T)
 };
 
-// run_bp_inference: execute full BP pipeline and extract posteriors
+// run_bp_inference: execute full BP pipeline and extract marginal posteriors
 //
 // High-level wrapper around the BP inference loop:
 // 1. Constructs factors (prior, emission, transition)
 // 2. Builds Bethe cluster graph
-// 3. Runs loopy belief propagation
-// 4. Extracts marginal posteriors gamma[t][s]
+// 3. Runs loopy belief propagation (sum-product)
+// 4. Extracts marginal posteriors gamma[t][s] = P(X_t=s | Z_1:T)
 //
 // Inputs:
-//   obs: observation grids for each timestep
-//   x_ids: RV identifiers (one per timestep)
+//   obs:       observation grids for each timestep
+//   x_ids:     RV identifiers (one per timestep)
 //   state_dom: domain of state values [0, n-1]
-//   pw, pc: detection and clutter probabilities
+//   pw, pc:    detection and clutter probabilities
 //
-// Returns: BPInferenceResult with posteriors and log-likelihoods
+// Returns: BPInferenceResult with posterior marginals
 BPInferenceResult run_bp_inference(
     const std::vector<Grid>& obs,
     const std::vector<emdw::RVIdType>& x_ids,
     const rcptr<std::vector<int>>& state_dom,
     double pw,
     double pc);
-
-// MAP Path Inference (Viterbi Algorithm)
-// =======================================
-
-// viterbi_path: compute maximum a posteriori (best joint) trajectory
-//
-// Implements Viterbi dynamic programming for Hidden Markov Models:
-//
-// DP recurrence:
-//   dp[t][s] = max_{X_1:t-1} log p(X_1:t-1, X_t=s, Z_1:t)
-//            = max_x (dp[t-1][x] + log P(X_t=s | X_{t-1}=x) + log p(Z_t | X_t=s))
-//
-// Initialization:
-//   dp[0][s] = log p(X_0=s) + log p(Z_0 | X_0=s)
-//
-// Backtracking: once we find the best final state, trace back through
-//   back pointers to reconstruct the full path
-//
-// Complexity: O(T * S^2) where T=timesteps, S=state space
-//
-// This is mathematically equivalent to max-product inference on the chain
-// structure and is preferred over emdw's sum-product BP when we want the
-// single most likely path (not marginal posteriors).
-//
-// Inputs:
-//   adj: transition adjacency list from build_transition_adj
-//   emis_log: [t][s] = log p(Z_t | X_t=s) from compute_emission_log
-//   prior_log: [s] = log p(X_0=s)
-//
-// Returns: vector of length T, path[t] = argmax state at timestep t
-std::vector<int> viterbi_path(
-    const std::vector<std::vector<std::pair<int, double>>>& adj,
-    const std::vector<std::vector<double>>& emis_log,
-    const std::vector<double>& prior_log);

@@ -295,7 +295,7 @@ vector<vector<pair<int, double>>> build_transition_adj(
 // Key assumptions:
 // 1. Detections are conditionally independent given state
 // 2. True cell s generates detection with probability pw (miss with 1-pw)
-// 3. Clutter cells k≠s generate detection with probability pc (TN with 1-pc)
+// 3. Clutter cells k!=s generate detection with probability pc (TN with 1-pc)
 //
 // For each proposed state s:
 //   log p(Z_t | X_t=s) = sum_k log P(z_k | X_t=s, k)
@@ -317,9 +317,9 @@ vector<double> compute_emission_log(
     double pc) {
   int n = obs.rows * obs.cols;
   vector<double> logp(n, 0.0);
-  double lpw = log(clamp_prob(pw));
+  double lpw  = log(clamp_prob(pw));
   double l1pw = log(clamp_prob(1.0 - pw));
-  double lpc = log(clamp_prob(pc));
+  double lpc  = log(clamp_prob(pc));
   double l1pc = log(clamp_prob(1.0 - pc));
 
   for (int s = 0; s < n; ++s) {
@@ -367,109 +367,19 @@ vector<double> scale_from_log(const vector<double>& logp) {
 }
 
 // ============================================================================
-// MAP Inference: Viterbi Algorithm
-// ============================================================================
-
-// viterbi_path: compute maximum a posteriori (most likely) trajectory
-//
-// Implements dynamic programming for hidden Markov models to solve:
-//   argmax_{X_1:T} P(X_1:T | Z_1:T)
-//
-// This is the "max-product" version of belief propagation optimized for
-// chain structures. It's more efficient than general BP when we only care
-// about the single best trajectory (not marginals).
-//
-// Algorithm:
-// 1. DP state: dp[t][s] = log of max probability of path up to time t in state s
-// 2. Transition: for each previous state x, try moving to s
-//    dp[t][s] = max_x (dp[t-1][x] + log P(X_t=s | X_{t-1}=x) + log p(Z_t | X_t=s))
-// 3. Backtracking: trace back through back pointers to recover full path
-//
-// Complexity: O(T * S^2) where T = number of timesteps, S = state space size
-// For dataset3: T=20, S=200 (10x20 grid), so ~80K operations (very fast)
-//
-// Used for generating out_*_map.txt output (MAP trajectory)
-//
-vector<int> viterbi_path(
-    const vector<vector<pair<int, double>>>& adj,
-    const vector<vector<double>>& emis_log,
-    const vector<double>& prior_log) {
-  int t_steps = (int)emis_log.size();
-  int n = (int)emis_log[0].size();
-  const double neg_inf = -1e300;
-
-  // DP table: dp[t][s] = log max probability of any path to (t, s)
-  vector<vector<double>> dp(t_steps, vector<double>(n, neg_inf));
-  // Backpointer: back[t][s] = previous state that maximized dp[t][s]
-  vector<vector<int>> back(t_steps, vector<int>(n, -1));
-
-  // Initialize: t=0, no prior transitions, just prior + emission
-  for (int s = 0; s < n; ++s) {
-    dp[0][s] = prior_log[s] + emis_log[0][s];
-  }
-
-  // Forward pass: DP recurrence
-  for (int t = 1; t < t_steps; ++t) {
-    // For each possible previous state
-    for (int prev = 0; prev < n; ++prev) {
-      double prev_score = dp[t - 1][prev];
-      if (prev_score <= neg_inf / 2) continue;  // skip impossible paths
-      
-      // Try all transitions from prev
-      for (const auto& kv : adj[prev]) {
-        int next = kv.first;
-        double p = kv.second;
-        if (p <= 0.0) continue;
-        
-        // Candidate score for path ending at (t, next) via prev
-        double score = prev_score + log(p) + emis_log[t][next];
-        
-        // Update DP if this is the best path to (t, next)
-        if (score > dp[t][next]) {
-          dp[t][next] = score;
-          back[t][next] = prev;
-        }
-      }
-    }
-  }
-
-  // Find best final state
-  int best = 0;
-  double best_score = dp[t_steps - 1][0];
-  for (int s = 1; s < n; ++s) {
-    if (dp[t_steps - 1][s] > best_score) {
-      best_score = dp[t_steps - 1][s];
-      best = s;
-    }
-  }
-
-  // Backtrack to reconstruct path
-  vector<int> path(t_steps, 0);
-  path[t_steps - 1] = best;
-  for (int t = t_steps - 1; t > 0; --t) {
-    path[t - 1] = back[t][path[t]];
-    if (path[t - 1] < 0) path[t - 1] = 0;  // safety check
-  }
-
-  return path;
-}
-
-// ============================================================================
-// Belief Propagation Inference Helper
+// Belief Propagation Inference
 // ============================================================================
 
 // run_bp_inference: unified BP inference pipeline
 //
-// Encapsulates the BP setup→run→extraction pattern used in both EM iterations
-// and the final inference pass. This eliminates ~160 lines of duplication
-// from wumpus.cc.
+// Encapsulates the BP setup -> run -> extraction pattern used in both
+// EM iterations and the final inference pass.
 //
 // Workflow:
 // 1. Construct factors: prior, emission (per timestep), transition (per timestep)
 // 2. Build Bethe cluster graph from factors
-// 3. Run loopy belief propagation to convergence
+// 3. Run loopy belief propagation (sum-product) to convergence
 // 4. Extract marginal posteriors gamma[t][s] = P(X_t=s | Z_1:T)
-// 5. Return both posteriors and log-likelihoods (needed for Viterbi)
 //
 BPInferenceResult run_bp_inference(
     const vector<Grid>& obs,
@@ -488,13 +398,10 @@ BPInferenceResult run_bp_inference(
   factors.push_back(make_unary_factor(x_ids[0], state_dom, prior));
 
   // Emission factors: P(Z_t | X_t) for each timestep
-  vector<vector<double>> emis_log;
-  emis_log.reserve(t_steps);
   for (int t = 0; t < t_steps; ++t) {
     vector<double> logp = compute_emission_log(obs[t], pw, pc);
     vector<double> probs = scale_from_log(logp);
     factors.push_back(make_unary_factor(x_ids[t], state_dom, probs));
-    emis_log.push_back(logp);
   }
 
   // Transition factors: P(X_t | X_{t-1}) for each timestep
@@ -505,13 +412,13 @@ BPInferenceResult run_bp_inference(
     factors.push_back(make_transition_factor(x_ids[t], x_ids[t - 1], state_dom, adj));
   }
 
-  // Run loopy belief propagation
+  // Run loopy belief propagation (sum-product)
   ClusterGraph cg(ClusterGraph::BETHE, factors, {});
   map<Idx2, rcptr<Factor>> msgs;
   MessageQueue msgQ;
   loopyBP_CG(cg, msgs, msgQ, 0.0);
 
-  // Extract posteriors
+  // Extract posteriors: gamma[t][s] = P(X_t=s | Z_1:T)
   vector<vector<double>> gamma(t_steps, vector<double>(n, 0.0));
   for (int t = 0; t < t_steps; ++t) {
     rcptr<Factor> bel = queryLBP_CG(cg, msgs, {x_ids[t]})->normalize();
@@ -520,5 +427,5 @@ BPInferenceResult run_bp_inference(
     }
   }
 
-  return BPInferenceResult{gamma, emis_log};
+  return BPInferenceResult{gamma};
 }
