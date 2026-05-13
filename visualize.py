@@ -128,7 +128,7 @@ def load_all_grids(dataset_dir):
 def _cell_colour(obs_val, is_true, is_marginal, is_map):
     """
     Return the fill colour for one grid cell.
-    Priority (highest → lowest): true > marginal > MAP > detection > empty.
+    Priority (highest -> lowest): true > marginal > MAP > detection > empty.
     """
     if is_true:
         return _C_TRUE
@@ -143,17 +143,17 @@ def _cell_colour(obs_val, is_true, is_marginal, is_map):
 
 def _build_colour_image(obs_grid, rows, cols, mx, my, vx, vy, tx, ty):
     """
-    Build an (rows × cols × 3) uint8 RGB array where every cell is a solid colour.
+    Build an (rows x cols x 3) float32 RGB array where every cell is a solid colour.
     """
     from matplotlib.colors import to_rgb
     img = np.zeros((rows, cols, 3), dtype=np.float32)
     for y in range(rows):
         for x in range(cols):
-            obs_val  = grid_value(obs_grid, y, x)
-            is_true  = (x == tx and y == ty)
-            is_marg  = (x == mx and y == my)
-            is_map_  = (x == vx and y == vy)
-            hex_col  = _cell_colour(obs_val, is_true, is_marg, is_map_)
+            obs_val = grid_value(obs_grid, y, x)
+            is_true = (x == tx and y == ty)
+            is_marg = (x == mx and y == my)
+            is_map_ = (x == vx and y == vy)
+            hex_col = _cell_colour(obs_val, is_true, is_marg, is_map_)
             img[y, x] = to_rgb(hex_col)
     return img
 
@@ -175,14 +175,14 @@ def _style_ax(ax, rows, cols, timestep):
     ax.tick_params(labelsize=8, length=0)
     ax.set_xlabel("Column (x)", fontsize=9, labelpad=6)
     ax.set_ylabel("Row (y)", fontsize=9, labelpad=6)
-    ax.set_title(f"Observations  —  t = {timestep}",
+    ax.set_title(f"Observations  -  t = {timestep}",
                  fontsize=11, fontweight="bold", pad=10)
     for spine in ax.spines.values():
         spine.set_edgecolor(_C_GRID)
 
 
 def _legend_patches():
-    """Fixed legend showing all four cell types."""
+    """Fixed legend showing all four cell types as colour blocks."""
     return [
         mpatches.Patch(color=_C_DETECTION, label="Detection"),
         mpatches.Patch(color=_C_TRUE,      label="True"),
@@ -219,8 +219,7 @@ def _render_frame(obs_grid, rows, cols, mx, my, vx, vy, tx, ty, timestep,
     fig.tight_layout(pad=1.2)
 
     if output_path:
-        fig.savefig(output_path, dpi=dpi, bbox_inches="tight",
-                    facecolor="white")
+        fig.savefig(output_path, dpi=dpi, bbox_inches="tight", facecolor="white")
         print(f"Saved visualization to {output_path}")
     else:
         plt.show()
@@ -229,7 +228,7 @@ def _render_frame(obs_grid, rows, cols, mx, my, vx, vy, tx, ty, timestep,
 
 
 # ---------------------------------------------------------------------------
-# Public API kept from original  (visualize_step)
+# Public API  (visualize_step)
 # ---------------------------------------------------------------------------
 
 def visualize_step(grids, marginal_trajectory, map_trajectory, timestep,
@@ -251,7 +250,6 @@ def visualize_step(grids, marginal_trajectory, map_trajectory, timestep,
         _render_frame(obs_grid, rows, cols, mx, my, vx, vy, tx, ty,
                       timestep, output_path)
     else:
-        # ASCII fallback
         print(f"\n{'='*60}")
         print(f"Timestep {timestep}")
         print(f"{'='*60}")
@@ -284,7 +282,6 @@ def _create_animation_axes(rows, cols):
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
     fig.patch.set_facecolor("white")
 
-    # Blank RGB image to start
     blank = np.ones((rows, cols, 3), dtype=np.float32)
     obs_img = ax.imshow(blank, origin="upper", interpolation="nearest",
                         extent=(-0.5, cols - 0.5, rows - 0.5, -0.5), zorder=1)
@@ -312,7 +309,7 @@ def _update_animation_frame(frame, grids, marginal_trajectory, map_trajectory,
     img = _build_colour_image(obs_grid, rows, cols, mx, my, vx, vy, tx, ty)
     obs_img.set_data(img)
 
-    ax.set_title(f"Observations  —  t = {frame}",
+    ax.set_title(f"Observations  -  t = {frame}",
                  fontsize=11, fontweight="bold", pad=10)
 
     return [obs_img]
@@ -323,7 +320,9 @@ def play_visualization(grids, marginal_trajectory, map_trajectory,
     rows, cols = grids[0].shape
     fig, ax, obs_img = _create_animation_axes(rows, cols)
 
-    FuncAnimation(
+    # IMPORTANT: must assign to a variable so the garbage collector does not
+    # destroy the animation object before the event loop runs it.
+    anim = FuncAnimation(  # noqa: F841
         fig,
         _update_animation_frame,
         frames=len(grids),
