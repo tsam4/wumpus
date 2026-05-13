@@ -6,10 +6,10 @@ This project tracks a latent Wumpus in a grid world using noisy, cluttered binar
 
 ## Datasets
 
-| Dataset  | Grid  | Steps | pw   | pc   | Notes                        |
-|----------|-------|-------|------|------|------------------------------|
-| dataset1 | 5×5   | 10    | 0.95 | 0.05 | Known params                 |
-| dataset2 | 20×20 | 20    | 0.95 | 0.05 | Known params, larger grid    |
+| Dataset  | Grid  | Steps | pw   | pc   | Notes                         |
+|----------|-------|-------|------|------|-------------------------------|
+| dataset1 | 5×5   | 10    | 0.95 | 0.05 | Known params                  |
+| dataset2 | 20×20 | 20    | 0.95 | 0.05 | Known params, larger grid     |
 | dataset3 | 10×20 | 20    | ?    | ?    | Unknown pw/pc (learned via EM)|
 
 ## Model
@@ -18,11 +18,11 @@ This project tracks a latent Wumpus in a grid world using noisy, cluttered binar
 
 The Wumpus position $X_t \in \{0, \ldots, R \cdot C - 1\}$ is the hidden state. Cells are indexed in row-major order: index $= y \cdot C + x$.
 
-**Transition model:** The Wumpus picks a direction uniformly from 4 (up, down, left, right). The move fails if the target cell is out of bounds.
+**Transition model:** The Wumpus picks a direction uniformly from 4 (up, down, left, right). The move fails if the target cell is out of bounds, and the Wumpus stays in its current cell.
 
-$$P(X_t = j \mid X_{t-1} = i) = 0.25 \quad \text{for } j \in \text{valid neighbors}(i)$$
+$$P(X_t = j \mid X_{t-1} = i) = 0.25 \quad \text{for each valid (in-bounds) neighbour } j$$
 
-$$P(X_t = i \mid X_{t-1} = i) = \frac{\text{number of out-of-bounds directions from } i}{4}$$
+$$P(X_t = i \mid X_{t-1} = i) \mathrel{+}= 0.25 \quad \text{for each out-of-bounds direction from } i$$
 
 **Emission model:** Each cell $k$ independently generates a binary observation $Z_t^k$:
 
@@ -32,7 +32,7 @@ $$P(Z_t^k = 1 \mid X_t = s) = \begin{cases} p_w & \text{if } k = s \\ p_c & \tex
 
 The HMM is assembled using [EMDW](https://github.com/emdw-team/emdw) factor graph inference:
 
-- **Unary prior factor** $p(X_0)$ over RV $X_0$: uniform prior
+- **Unary prior factor** $p(X_0)$: uniform over all cells
 - **Unary emission factors** $p(Z_t \mid X_t)$ at each timestep
 - **Pairwise transition factors** $p(X_t \mid X_{t-1})$ linking adjacent timesteps
 
@@ -79,18 +79,14 @@ src/bin/wumpus /path/to/Datasets/dataset3 3 out_d3 --em 10
 
 ### CLI Arguments
 
-```
-wumpus <dataset_dir> <dataset_id> <out_prefix> [--pw v] [--pc v] [--em n]
-```
-
-| Argument      | Description                                             | Default        |
-|---------------|---------------------------------------------------------|----------------|
-| `dataset_dir` | Path to the dataset directory                           | (required)     |
-| `dataset_id`  | 1–3; selects known parameters or enables EM mode        | (required)     |
-| `out_prefix`  | Output file prefix (produces `_marginal.txt`, `_map.txt`)| (required)    |
-| `--pw v`      | Override detection probability                          | From dataset   |
-| `--pc v`      | Override clutter probability                            | From dataset   |
-| `--em n`      | Number of EM iterations for parameter learning          | 0              |
+| Argument      | Description                                               | Default      |
+|---------------|-----------------------------------------------------------|--------------|
+| `dataset_dir` | Path to the dataset directory                             | (required)   |
+| `dataset_id`  | 1–3; selects known parameters or enables EM mode          | (required)   |
+| `out_prefix`  | Output file prefix (`_marginal.txt`, `_map.txt`)          | (required)   |
+| `--pw v`      | Override detection probability                            | From dataset |
+| `--pc v`      | Override clutter probability                              | From dataset |
+| `--em n`      | Number of EM iterations for parameter learning            | 0            |
 
 ## Output Format
 
@@ -128,9 +124,9 @@ wumpus/
 │   ├── test_transition.cc # Transition model tests
 │   └── test_emdw_bp.cc    # BP inference integration tests
 ├── tests_advanced/
-│   ├── test_e2e_sim.cc         # End-to-end simulated accuracy test
-│   ├── test_em_extremes.cc     # EM stability on degenerate grids
-│   └── test_dataset2_scale.cc  # Performance/memory test (20×20)
+│   ├── test_e2e_sim.cc    # End-to-end simulated accuracy test
+│   ├── test_em_extremes.cc# EM stability on degenerate inputs
+│   └── test_dataset2_scale.cc # Performance/memory test (20×20)
 ├── scripts/
 │   ├── compute_accuracy.py
 │   └── generate_summary.py
@@ -149,5 +145,5 @@ wumpus/
 
 **Advanced integration tests** (`make test-advanced`):
 - `test_e2e_sim.cc`: End-to-end accuracy on simulated trajectories
-- `test_em_extremes.cc`: EM stability on degenerate inputs
+- `test_em_extremes.cc`: EM stability with degenerate (all-zero, all-one) observations
 - `test_dataset2_scale.cc`: Performance and memory on 20×20 grid

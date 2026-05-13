@@ -8,10 +8,10 @@ Datasets:
 - dataset3: 10x20 grid, 20 steps, pw/pc unknown (learned via EM)
 
 TRANSITION MODEL
-Let N(i) be the 4-neighbors of cell i that are inside the grid. The Wumpus picks a direction uniformly from 4, then:
-- If the direction points outside the grid, it stays put.
-  P(X_t=j | X_{t-1}=i) = 0.25  for j in valid neighbors(i)
-  P(X_t=i | X_{t-1}=i) = (number of out-of-bounds directions from i) / 4
+The Wumpus picks a direction uniformly from 4 (up, down, left, right):
+- If the direction is out-of-bounds, the Wumpus stays put.
+  P(X_t=j | X_{t-1}=i) = 0.25  for each valid (in-bounds) neighbour j
+  P(X_t=i | X_{t-1}=i) += 0.25 for each out-of-bounds direction from i
 
 EMISSION MODEL
 Each cell k independently emits a binary detection:
@@ -30,7 +30,10 @@ MAP trajectory computed via Viterbi dynamic programming.
 
 EM PARAMETER LEARNING (Dataset 3)
 E-step: run BP to compute posteriors gamma[t][s] = P(X_t=s | Z_1:T)
-M-step: update pw and pc from expected sufficient statistics.
+M-step: update pw and pc from expected sufficient statistics:
+  pw = sum_t sum_s gamma[t][s] * Z_t^s / sum_t sum_s gamma[t][s]
+  pc = sum_t sum_s gamma[t][s] * sum_{k!=s} Z_t^k /
+       ( sum_t sum_s gamma[t][s] * (N-1) )
 
 BUILDING
 From emdw/build/:
@@ -58,7 +61,7 @@ Basic:
 
 Advanced:
   test_e2e_sim.cc:        end-to-end accuracy on simulated data
-  test_em_extremes.cc:    EM stability on degenerate inputs
+  test_em_extremes.cc:    EM stability on degenerate observations
   test_dataset2_scale.cc: performance/memory on 20x20 grid (dataset2)
 
 MAKEFILE TARGETS
