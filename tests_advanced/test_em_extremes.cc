@@ -1,4 +1,4 @@
-// advanced test: EM extremes for pw/pc (datasets 3 and 5, mini_project.pdf)
+// advanced test: EM extremes for pw/pc (dataset 3, mini_project.pdf)
 
 #include "wumpus_model.hpp"
 
@@ -54,8 +54,7 @@ static void run_em(const std::vector<Grid>& obs, double* pw, double* pc, int ite
   std::vector<RVIdType> x_ids(t_steps);
   for (int t = 0; t < t_steps; ++t) x_ids[t] = RVIdType(t);
 
-  std::vector<double> occ(n, 0.0);
-  auto adj = build_transition_adj(rows, cols, occ, false);
+  auto adj = build_transition_adj(rows, cols);
 
   std::vector<std::vector<double>> gamma;
 
@@ -65,7 +64,7 @@ static void run_em(const std::vector<Grid>& obs, double* pw, double* pc, int ite
     factors.push_back(make_unary(x_ids[0], state_dom, prior));
 
     for (int t = 0; t < t_steps; ++t) {
-      auto logp = compute_emission_log(obs[t], *pw, *pc, occ, false);
+      auto logp = compute_emission_log(obs[t], *pw, *pc);
       auto probs = scale_from_log(logp);
       factors.push_back(make_unary(x_ids[t], state_dom, probs));
     }

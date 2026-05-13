@@ -73,8 +73,7 @@ int main() {
   std::vector<RVIdType> x_ids(t_steps);
   for (int t = 0; t < t_steps; ++t) x_ids[t] = RVIdType(t);
 
-  std::vector<double> occ(n, 0.0);
-  auto adj = build_transition_adj(rows, cols, occ, false);
+  auto adj = build_transition_adj(rows, cols);
 
   std::vector<rcptr<Factor>> factors;
   std::vector<double> prior(n, 1.0);
@@ -83,7 +82,7 @@ int main() {
   std::vector<std::vector<double>> emis_log;
   emis_log.reserve(t_steps);
   for (int t = 0; t < t_steps; ++t) {
-    auto logp = compute_emission_log(obs[t], pw, pc, occ, false);
+    auto logp = compute_emission_log(obs[t], pw, pc);
     auto probs = scale_from_log(logp);
     factors.push_back(make_unary(x_ids[t], state_dom, probs));
     emis_log.push_back(logp);
