@@ -3,7 +3,7 @@
 Wumpus Trajectory Visualizer
 
 Displays measurements (detections) and predicted Wumpus location at each timestep.
-Shows both marginal (per-timestep argmax) and MAP (Viterbi) trajectories.
+Shows the marginal (belief-propagation argmax) trajectory.
 
 Usage:
     python visualize.py <dataset_id>
@@ -45,7 +45,6 @@ _C_EMPTY      = "#f0f0f0"   # empty, undetected cell
 _C_DETECTION  = "#4a90d9"   # sensor detected something here  (blue)
 _C_TRUE       = "#e8a020"   # ground-truth wumpus location    (amber)
 _C_MARGINAL   = "#2ca02c"   # marginal-argmax prediction      (green)
-_C_MAP        = "#d62728"   # MAP / Viterbi prediction        (red)
 _C_GRID       = "#cccccc"   # grid line colour
 
 
@@ -72,7 +71,7 @@ def grid_value(grid, y, x):
 
 
 def load_trajectory_file(filepath):
-    """Load a trajectory file (marginal or MAP)."""
+    """Load a trajectory file (marginal)."""
     trajectory = []
     with open(filepath, 'r') as f:
         for line in f:
@@ -125,23 +124,21 @@ def load_all_grids(dataset_dir):
 # Core colour-block rendering
 # ---------------------------------------------------------------------------
 
-def _cell_colour(obs_val, is_true, is_marginal, is_map):
+def _cell_colour(obs_val, is_true, is_marginal):
     """
     Return the fill colour for one grid cell.
-    Priority (highest -> lowest): true > marginal > MAP > detection > empty.
+    Priority (highest -> lowest): true > marginal > detection > empty.
     """
     if is_true:
         return _C_TRUE
     if is_marginal:
         return _C_MARGINAL
-    if is_map:
-        return _C_MAP
     if obs_val:
         return _C_DETECTION
     return _C_EMPTY
 
 
-def _build_colour_image(obs_grid, rows, cols, mx, my, vx, vy, tx, ty):
+def _build_colour_image(obs_grid, rows, cols, mx, my, tx, ty):
     """
     Build an (rows x cols x 3) float32 RGB array where every cell is a solid colour.
     """
@@ -152,8 +149,7 @@ def _build_colour_image(obs_grid, rows, cols, mx, my, vx, vy, tx, ty):
             obs_val = grid_value(obs_grid, y, x)
             is_true = (x == tx and y == ty)
             is_marg = (x == mx and y == my)
-            is_map_ = (x == vx and y == vy)
-            hex_col = _cell_colour(obs_val, is_true, is_marg, is_map_)
+            hex_col = _cell_colour(obs_val, is_true, is_marg)
             img[y, x] = to_rgb(hex_col)
     return img
 
@@ -182,12 +178,11 @@ def _style_ax(ax, rows, cols, timestep):
 
 
 def _legend_patches():
-    """Fixed legend showing all four cell types as colour blocks."""
+    """Fixed legend showing cell types as colour blocks."""
     return [
         mpatches.Patch(color=_C_DETECTION, label="Detection"),
         mpatches.Patch(color=_C_TRUE,      label="True"),
-        mpatches.Patch(color=_C_MARGINAL,  label="Marginal"),
-        mpatches.Patch(color=_C_MAP,       label="MAP (Viterbi)"),
+        mpatches.Patch(color=_C_MARGINAL,  label="Marginal (BP)"),
     ]
 
 
@@ -195,7 +190,7 @@ def _legend_patches():
 # Static single-frame render  (used by visualize_step)
 # ---------------------------------------------------------------------------
 
-def _render_frame(obs_grid, rows, cols, mx, my, vx, vy, tx, ty, timestep,
+def _render_frame(obs_grid, rows, cols, mx, my, tx, ty, timestep,
                   output_path=None):
     cell_px = 60
     dpi = 100
@@ -205,7 +200,7 @@ def _render_frame(obs_grid, rows, cols, mx, my, vx, vy, tx, ty, timestep,
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
     fig.patch.set_facecolor("white")
 
-    img = _build_colour_image(obs_grid, rows, cols, mx, my, vx, vy, tx, ty)
+    img = _build_colour_image(obs_grid, rows, cols, mx, my, tx, ty)
     ax.imshow(img, origin="upper", interpolation="nearest",
               extent=(-0.5, cols - 0.5, rows - 0.5, -0.5), zorder=1)
 
@@ -231,9 +226,9 @@ def _render_frame(obs_grid, rows, cols, mx, my, vx, vy, tx, ty, timestep,
 # Public API  (visualize_step)
 # ---------------------------------------------------------------------------
 
-def visualize_step(grids, marginal_trajectory, map_trajectory, timestep,
+def visualize_step(grids, marginal_trajectory, timestep,
                    output_path=None, ground_truth=None):
-    """Visualize a single timestep with observations and predictions."""
+    """Visualize a single timestep with observations and marginal prediction."""
     if timestep >= len(grids):
         print(f"Error: Timestep {timestep} out of range (max {len(grids)-1})")
         return
@@ -243,11 +238,10 @@ def visualize_step(grids, marginal_trajectory, map_trajectory, timestep,
     cols = len(obs_grid[0]) if rows else 0
 
     mx, my = marginal_trajectory[timestep] if timestep < len(marginal_trajectory) else (-1, -1)
-    vx, vy = map_trajectory[timestep]      if timestep < len(map_trajectory)      else (-1, -1)
     tx, ty = ground_truth[timestep]        if ground_truth and timestep < len(ground_truth) else (-1, -1)
 
     if MATPLOTLIB_AVAILABLE:
-        _render_frame(obs_grid, rows, cols, mx, my, vx, vy, tx, ty,
+        _render_frame(obs_grid, rows, cols, mx, my, tx, ty,
                       timestep, output_path)
     else:
         print(f"\n{'='*60}")
@@ -259,14 +253,11 @@ def visualize_step(grids, marginal_trajectory, map_trajectory, timestep,
                 obs_val = grid_value(obs_grid, y, x)
                 c = _cell_colour(obs_val,
                                  x == tx and y == ty,
-                                 x == mx and y == my,
-                                 x == vx and y == vy)
+                                 x == mx and y == my)
                 row_str += {"#f0f0f0": ".", "#4a90d9": "D",
-                            "#e8a020": "T", "#2ca02c": "G",
-                            "#d62728": "R"}.get(c, "?")
+                            "#e8a020": "T", "#2ca02c": "G"}.get(c, "?")
             print(row_str)
-        print(f"Marginal: ({mx},{my})  MAP: ({vx},{vy})"
-              + (f"  True: ({tx},{ty})" if tx >= 0 else ""))
+        print(f"Marginal: ({mx},{my})" + (f"  True: ({tx},{ty})" if tx >= 0 else ""))
 
 
 # ---------------------------------------------------------------------------
@@ -297,16 +288,15 @@ def _create_animation_axes(rows, cols):
     return fig, ax, obs_img
 
 
-def _update_animation_frame(frame, grids, marginal_trajectory, map_trajectory,
+def _update_animation_frame(frame, grids, marginal_trajectory,
                              ground_truth, obs_img, ax):
     obs_grid = grids[frame]
     rows, cols = obs_grid.shape
 
     mx, my = marginal_trajectory[frame] if frame < len(marginal_trajectory) else (-1, -1)
-    vx, vy = map_trajectory[frame]      if frame < len(map_trajectory)      else (-1, -1)
     tx, ty = ground_truth[frame]        if ground_truth and frame < len(ground_truth) else (-1, -1)
 
-    img = _build_colour_image(obs_grid, rows, cols, mx, my, vx, vy, tx, ty)
+    img = _build_colour_image(obs_grid, rows, cols, mx, my, tx, ty)
     obs_img.set_data(img)
 
     ax.set_title(f"Observations  -  t = {frame}",
@@ -315,8 +305,7 @@ def _update_animation_frame(frame, grids, marginal_trajectory, map_trajectory,
     return [obs_img]
 
 
-def play_visualization(grids, marginal_trajectory, map_trajectory,
-                       ground_truth=None):
+def play_visualization(grids, marginal_trajectory, ground_truth=None):
     rows, cols = grids[0].shape
     fig, ax, obs_img = _create_animation_axes(rows, cols)
 
@@ -326,8 +315,7 @@ def play_visualization(grids, marginal_trajectory, map_trajectory,
         fig,
         _update_animation_frame,
         frames=len(grids),
-        fargs=(grids, marginal_trajectory, map_trajectory, ground_truth,
-               obs_img, ax),
+        fargs=(grids, marginal_trajectory, ground_truth, obs_img, ax),
         interval=800,
         blit=False,
         repeat=False,
@@ -368,20 +356,16 @@ def main():
     print(f"Loaded {len(grids)} observation grids")
 
     marginal_file = str(out_prefix) + "_marginal.txt"
-    map_file      = str(out_prefix) + "_map.txt"
 
-    if not os.path.exists(marginal_file) or not os.path.exists(map_file):
-        print("Error: Output files not found")
+    if not os.path.exists(marginal_file):
+        print("Error: Output file not found")
         print(f"  Marginal: {os.path.basename(marginal_file)} "
               f"(exists: {os.path.exists(marginal_file)})")
-        print(f"  MAP:      {os.path.basename(map_file)} "
-              f"(exists: {os.path.exists(map_file)})")
         print("\nRun 'make run' or build the executable first")
         sys.exit(1)
 
-    print("Loading trajectories...")
+    print("Loading trajectory...")
     marginal_traj = load_trajectory_file(marginal_file)
-    map_traj      = load_trajectory_file(map_file)
 
     ground_truth = None
     gt_file = find_ground_truth_file(dataset_id)
@@ -391,15 +375,14 @@ def main():
             print(f"Loaded ground truth trajectory with {len(ground_truth)} points")
 
     print(f"Loaded marginal trajectory with {len(marginal_traj)} points")
-    print(f"Loaded MAP trajectory with {len(map_traj)} points")
 
     if MATPLOTLIB_AVAILABLE:
         print("\nLaunching interactive visualization window...\n")
-        play_visualization(grids, marginal_traj, map_traj, ground_truth)
+        play_visualization(grids, marginal_traj, ground_truth)
     else:
         print("\nMatplotlib not available. Showing ASCII visualization:")
         for t in range(min(5, len(grids))):
-            visualize_step(grids, marginal_traj, map_traj, t)
+            visualize_step(grids, marginal_traj, t)
 
 
 if __name__ == "__main__":
