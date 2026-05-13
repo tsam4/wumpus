@@ -27,7 +27,9 @@ except ImportError:
 try:
     import matplotlib
     import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
     from matplotlib.animation import FuncAnimation
+    from matplotlib.colors import ListedColormap
     MATPLOTLIB_AVAILABLE = NP_AVAILABLE
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -137,83 +139,7 @@ def visualize_step(grids, marginal_trajectory, map_trajectory, timestep, output_
     
     # Use matplotlib if available
     if MATPLOTLIB_AVAILABLE:
-        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-        
-        # Plot observations
-        ax = axes[0]
-        ax.imshow(obs_grid, cmap='RdYlBu_r', origin='upper', vmin=0, vmax=1)
-        ax.set_title(f"Observations (t={timestep})")
-        ax.set_xlabel("X (column)")
-        ax.set_ylabel("Y (row)")
-        
-        # Mark detections
-        for y in range(rows):
-            for x in range(cols):
-                if grid_value(obs_grid, y, x) > 0:
-                    ax.plot(x, y, 'b*', markersize=15, label="Detection" if x == 0 and y == 0 else "")
-        
-        # Mark marginal prediction
-        if 0 <= mx < cols and 0 <= my < rows:
-            ax.plot(mx, my, 'go', markersize=12, markerfacecolor='none', linewidth=2, label="Marginal")
-        
-        # Mark MAP prediction
-        if 0 <= vx < cols and 0 <= vy < rows:
-            ax.plot(vx, vy, 'r^', markersize=12, markerfacecolor='none', linewidth=2, label="MAP (Viterbi)")
-
-        # Mark true location if available
-        if 0 <= tx < cols and 0 <= ty < rows:
-            ax.plot(tx, ty, 'kx', markersize=12, markeredgewidth=2, label="True")
-        
-        ax.legend(loc='upper right')
-        
-        # Plot full trajectories
-        ax = axes[1]
-        
-        # Draw grid background
-        ax.imshow(np.zeros((rows, cols)), cmap='gray', origin='upper', alpha=0.3)
-        
-        # Plot marginal trajectory
-        if marginal_trajectory:
-            mx_all = [p[0] for p in marginal_trajectory]
-            my_all = [p[1] for p in marginal_trajectory]
-            ax.plot(mx_all, my_all, 'g-', linewidth=2, alpha=0.7, label="Marginal trajectory")
-            ax.plot(mx_all, my_all, 'go', markersize=6, alpha=0.5)
-        
-        # Plot MAP trajectory
-        if map_trajectory:
-            vx_all = [p[0] for p in map_trajectory]
-            vy_all = [p[1] for p in map_trajectory]
-            ax.plot(vx_all, vy_all, 'r--', linewidth=2, alpha=0.7, label="MAP trajectory")
-            ax.plot(vx_all, vy_all, 'r^', markersize=6, alpha=0.5)
-
-        # Plot true trajectory if available
-        if ground_truth:
-            tx_all = [p[0] for p in ground_truth]
-            ty_all = [p[1] for p in ground_truth]
-            ax.plot(tx_all, ty_all, 'k-', linewidth=2, alpha=0.7, label="True trajectory")
-            ax.plot(tx_all, ty_all, 'kx', markersize=6, alpha=0.5)
-        
-        # Mark current timestep
-        if timestep < len(marginal_trajectory):
-            ax.plot(mx, my, 'go', markersize=15, markerfacecolor='none', linewidth=2)
-        
-        ax.set_xlim(-0.5, cols - 0.5)
-        ax.set_ylim(rows - 0.5, -0.5)
-        ax.set_xlabel("X (column)")
-        ax.set_ylabel("Y (row)")
-        ax.set_title(f"Trajectories (current: t={timestep})")
-        ax.legend(loc='upper right')
-        ax.grid(True, alpha=0.3)
-        
-        plt.tight_layout()
-        
-        if output_path:
-            plt.savefig(output_path, dpi=100, bbox_inches='tight')
-            print(f"Saved visualization to {output_path}")
-        else:
-            plt.show()
-        
-        plt.close()
+        _render_obs_panel(obs_grid, rows, cols, mx, my, vx, vy, tx, ty, timestep, output_path)
     
     # Fallback: ASCII visualization
     else:
@@ -256,131 +182,211 @@ def visualize_step(grids, marginal_trajectory, map_trajectory, timestep, output_
         print(f"MAP (Viterbi) prediction: ({vx}, {vy})")
 
 
-def create_visualization_axes(rows, cols):
-    fig, (ax_obs, ax_traj) = plt.subplots(1, 2, figsize=(14, 6))
-    obs_img = ax_obs.imshow(np.zeros((rows, cols)), cmap='RdYlBu_r', origin='upper', vmin=0, vmax=1)
-    ax_obs.set_facecolor('#fafafa')
-    ax_obs.set_title("Observations")
-    ax_obs.set_xlabel("X (column)")
-    ax_obs.set_ylabel("Y (row)")
-    ax_obs.set_xticks(range(cols))
-    ax_obs.set_yticks(range(rows))
-    ax_obs.set_xlim(-0.5, cols - 0.5)
-    ax_obs.set_ylim(rows - 0.5, -0.5)
-    ax_obs.grid(False)
+# ---------------------------------------------------------------------------
+# Single-panel rendering helpers
+# ---------------------------------------------------------------------------
 
-    scat_meas = ax_obs.scatter([], [], c='b', marker='*', s=120, label='Measurement')
-    scat_marg = ax_obs.scatter([], [], edgecolors='g', facecolors='none', marker='o', s=140, linewidths=2, label='Marginal')
-    scat_map = ax_obs.scatter([], [], edgecolors='r', facecolors='none', marker='^', s=140, linewidths=2, label='MAP')
-    scat_true = ax_obs.scatter([], [], c='k', marker='x', s=140, linewidths=2, label='True')
-    ax_obs.legend(loc='upper right', fontsize='small')
-
-    ax_traj.imshow(np.zeros((rows, cols)), cmap='gray', origin='upper', alpha=0.12, vmin=0, vmax=1)
-    ax_traj.set_facecolor('#f0f0f0')
-    ax_traj.set_title("Trajectories")
-    ax_traj.set_xlabel("X (column)")
-    ax_traj.set_ylabel("Y (row)")
-    ax_traj.set_xticks(range(cols))
-    ax_traj.set_yticks(range(rows))
-    ax_traj.set_xlim(-0.5, cols - 0.5)
-    ax_traj.set_ylim(rows - 0.5, -0.5)
-    ax_traj.grid(True, alpha=0.3)
-
-    line_marg, = ax_traj.plot([], [], 'g-o', linewidth=2, alpha=0.7, label='Marginal')
-    line_map, = ax_traj.plot([], [], 'r--^', linewidth=2, alpha=0.7, label='MAP')
-    line_true, = ax_traj.plot([], [], 'k-x', linewidth=2, alpha=0.7, label='True')
-    current_point, = ax_traj.plot([], [], 'yo', markersize=10, markerfacecolor='none', label='Current')
-    ax_traj.legend(loc='upper right', fontsize='small')
-
-    return fig, ax_obs, ax_traj, obs_img, scat_meas, scat_marg, scat_map, scat_true, line_marg, line_map, line_true, current_point
+# Colours used throughout the observation panel
+_CELL_BG      = "#f5f5f5"   # empty cell
+_CELL_DET     = "#4a90d9"   # detected cell (light blue)
+_GRID_LINE    = "#cccccc"
+_COL_MARGINAL = "#2ca02c"   # green
+_COL_MAP      = "#d62728"   # red
+_COL_TRUE     = "#1a1a1a"   # near-black
 
 
-def update_animation_frame(frame, grids, marginal_trajectory, map_trajectory, ground_truth, obs_img, scat_meas, scat_marg, scat_map, scat_true, line_marg, line_map, line_true, current_point, ax_obs, ax_traj):
+def _make_obs_cmap():
+    """Two-colour map: light grey → steel blue."""
+    return ListedColormap([_CELL_BG, _CELL_DET])
+
+
+def _draw_cell_grid(ax, rows, cols):
+    """Draw thin grid lines on top of the image."""
+    for x in range(cols + 1):
+        ax.axvline(x - 0.5, color=_GRID_LINE, linewidth=0.6, zorder=2)
+    for y in range(rows + 1):
+        ax.axhline(y - 0.5, color=_GRID_LINE, linewidth=0.6, zorder=2)
+
+
+def _style_obs_ax(ax, rows, cols, timestep):
+    """Apply consistent styling to the observation axes."""
+    ax.set_facecolor("white")
+    ax.set_xlim(-0.5, cols - 0.5)
+    ax.set_ylim(rows - 0.5, -0.5)
+    ax.set_xticks(range(cols))
+    ax.set_yticks(range(rows))
+    ax.tick_params(labelsize=8, length=0)
+    ax.set_xlabel("Column (x)", fontsize=9, labelpad=6)
+    ax.set_ylabel("Row (y)", fontsize=9, labelpad=6)
+    ax.set_title(f"Observations  —  t = {timestep}", fontsize=11, fontweight="bold", pad=10)
+    for spine in ax.spines.values():
+        spine.set_edgecolor(_GRID_LINE)
+
+
+def _render_obs_panel(obs_grid, rows, cols, mx, my, vx, vy, tx, ty, timestep, output_path=None):
+    """Render the single observation panel and either show or save it."""
+    # Scale figure so each cell is ~55 px at 100 dpi
+    cell_px = 55
+    dpi = 100
+    fig_w = max(5.0, cols * cell_px / dpi + 1.6)
+    fig_h = max(4.0, rows * cell_px / dpi + 1.4)
+
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    fig.patch.set_facecolor("white")
+
+    # Background image
+    cmap = _make_obs_cmap()
+    ax.imshow(obs_grid, cmap=cmap, origin="upper", vmin=0, vmax=1,
+              interpolation="nearest", zorder=1)
+
+    # Grid lines
+    _draw_cell_grid(ax, rows, cols)
+
+    # --- markers (drawn in order: detection dots → true → marginal → MAP) ---
+
+    # Blue dot in every detected cell
+    det_ys, det_xs = np.where(obs_grid > 0)
+    if len(det_xs):
+        ax.scatter(det_xs, det_ys,
+                   c="#1565c0", marker="o", s=40, zorder=4,
+                   label="Detection")
+
+    # True position  ✕
+    if 0 <= tx < cols and 0 <= ty < rows:
+        ax.plot(tx, ty, marker="x", color=_COL_TRUE,
+                markersize=14, markeredgewidth=2.5, zorder=6,
+                linestyle="none", label="True")
+
+    # Marginal argmax  ○
+    if 0 <= mx < cols and 0 <= my < rows:
+        ax.plot(mx, my, marker="o", color=_COL_MARGINAL,
+                markersize=16, markerfacecolor="none",
+                markeredgewidth=2.2, zorder=7, linestyle="none",
+                label="Marginal")
+
+    # MAP (Viterbi)  △
+    if 0 <= vx < cols and 0 <= vy < rows:
+        ax.plot(vx, vy, marker="^", color=_COL_MAP,
+                markersize=14, markerfacecolor="none",
+                markeredgewidth=2.2, zorder=8, linestyle="none",
+                label="MAP (Viterbi)")
+
+    _style_obs_ax(ax, rows, cols, timestep)
+
+    # Legend — only show entries that actually appear
+    handles, labels = ax.get_legend_handles_labels()
+    if handles:
+        ax.legend(handles, labels,
+                  loc="upper right",
+                  fontsize=8,
+                  framealpha=0.9,
+                  edgecolor=_GRID_LINE,
+                  markerscale=0.85)
+
+    fig.tight_layout(pad=1.2)
+
+    if output_path:
+        fig.savefig(output_path, dpi=dpi, bbox_inches="tight",
+                    facecolor="white")
+        print(f"Saved visualization to {output_path}")
+    else:
+        plt.show()
+
+    plt.close(fig)
+
+
+# ---------------------------------------------------------------------------
+# Animation helpers
+# ---------------------------------------------------------------------------
+
+def _create_animation_axes(rows, cols):
+    """Create figure + axes for the animated playback (single panel)."""
+    cell_px = 55
+    dpi = 100
+    fig_w = max(5.0, cols * cell_px / dpi + 1.6)
+    fig_h = max(4.5, rows * cell_px / dpi + 1.6)
+
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    fig.patch.set_facecolor("white")
+
+    cmap = _make_obs_cmap()
+    obs_img = ax.imshow(np.zeros((rows, cols), dtype=int),
+                        cmap=cmap, origin="upper",
+                        vmin=0, vmax=1,
+                        interpolation="nearest", zorder=1)
+
+    _draw_cell_grid(ax, rows, cols)
+    _style_obs_ax(ax, rows, cols, 0)
+
+    scat_meas = ax.scatter([], [], c="#1565c0", marker="o", s=40,
+                           zorder=4, label="Detection")
+    pt_true,    = ax.plot([], [], marker="x",  color=_COL_TRUE,
+                          markersize=14, markeredgewidth=2.5,
+                          linestyle="none", zorder=6, label="True")
+    pt_marg,    = ax.plot([], [], marker="o",  color=_COL_MARGINAL,
+                          markersize=16, markerfacecolor="none",
+                          markeredgewidth=2.2, linestyle="none",
+                          zorder=7, label="Marginal")
+    pt_map,     = ax.plot([], [], marker="^",  color=_COL_MAP,
+                          markersize=14, markerfacecolor="none",
+                          markeredgewidth=2.2, linestyle="none",
+                          zorder=8, label="MAP (Viterbi)")
+
+    ax.legend(loc="upper right", fontsize=8,
+              framealpha=0.9, edgecolor=_GRID_LINE, markerscale=0.85)
+
+    fig.tight_layout(pad=1.2)
+
+    return fig, ax, obs_img, scat_meas, pt_true, pt_marg, pt_map
+
+
+def _update_animation_frame(frame, grids, marginal_trajectory, map_trajectory,
+                             ground_truth, obs_img, scat_meas,
+                             pt_true, pt_marg, pt_map, ax):
     obs_grid = grids[frame]
-    rows = len(obs_grid)
-    cols = len(obs_grid[0]) if rows else 0
+    rows, cols = obs_grid.shape
 
-    if frame < len(marginal_trajectory):
-        mx, my = marginal_trajectory[frame]
-    else:
-        mx, my = -1, -1
-
-    if frame < len(map_trajectory):
-        vx, vy = map_trajectory[frame]
-    else:
-        vx, vy = -1, -1
-
-    if ground_truth and frame < len(ground_truth):
-        tx, ty = ground_truth[frame]
-    else:
-        tx, ty = -1, -1
+    mx, my = marginal_trajectory[frame] if frame < len(marginal_trajectory) else (-1, -1)
+    vx, vy = map_trajectory[frame]      if frame < len(map_trajectory)      else (-1, -1)
+    tx, ty = ground_truth[frame]        if ground_truth and frame < len(ground_truth) else (-1, -1)
 
     obs_img.set_data(obs_grid)
 
-    meas_y, meas_x = np.where(obs_grid > 0)
-    if len(meas_x):
-        scat_meas.set_offsets(np.column_stack((meas_x, meas_y)))
+    det_ys, det_xs = np.where(obs_grid > 0)
+    if len(det_xs):
+        scat_meas.set_offsets(np.column_stack((det_xs, det_ys)))
     else:
         scat_meas.set_offsets(np.zeros((0, 2)))
 
-    if 0 <= mx < cols and 0 <= my < rows:
-        scat_marg.set_offsets(np.array([[mx, my]]))
-    else:
-        scat_marg.set_offsets(np.zeros((0, 2)))
+    pt_true.set_data([tx] if 0 <= tx < cols and 0 <= ty < rows else [],
+                     [ty] if 0 <= tx < cols and 0 <= ty < rows else [])
+    pt_marg.set_data([mx] if 0 <= mx < cols and 0 <= my < rows else [],
+                     [my] if 0 <= mx < cols and 0 <= my < rows else [])
+    pt_map.set_data( [vx] if 0 <= vx < cols and 0 <= vy < rows else [],
+                     [vy] if 0 <= vx < cols and 0 <= vy < rows else [])
 
-    if 0 <= vx < cols and 0 <= vy < rows:
-        scat_map.set_offsets(np.array([[vx, vy]]))
-    else:
-        scat_map.set_offsets(np.zeros((0, 2)))
+    ax.set_title(f"Observations  —  t = {frame}",
+                 fontsize=11, fontweight="bold", pad=10)
 
-    if 0 <= tx < cols and 0 <= ty < rows:
-        scat_true.set_offsets(np.array([[tx, ty]]))
-    else:
-        scat_true.set_offsets(np.zeros((0, 2)))
-
-    mx_all = [p[0] for p in marginal_trajectory]
-    my_all = [p[1] for p in marginal_trajectory]
-    line_marg.set_data(mx_all, my_all)
-
-    vx_all = [p[0] for p in map_trajectory]
-    vy_all = [p[1] for p in map_trajectory]
-    line_map.set_data(vx_all, vy_all)
-
-    if ground_truth:
-        tx_all = [p[0] for p in ground_truth]
-        ty_all = [p[1] for p in ground_truth]
-        line_true.set_data(tx_all, ty_all)
-    else:
-        line_true.set_data([], [])
-
-    if 0 <= mx < cols and 0 <= my < rows:
-        current_point.set_data([mx], [my])
-    else:
-        current_point.set_data([], [])
-
-    ax_obs.set_title(f"Observations (t={frame})")
-    ax_traj.set_title(f"Trajectories (current: t={frame})")
-
-    return [obs_img, scat_meas, scat_marg, scat_map, scat_true, line_marg, line_map, line_true, current_point]
+    return [obs_img, scat_meas, pt_true, pt_marg, pt_map]
 
 
 def play_visualization(grids, marginal_trajectory, map_trajectory, ground_truth=None):
-    rows = len(grids[0])
-    cols = len(grids[0][0])
-    fig, ax_obs, ax_traj, obs_img, scat_meas, scat_marg, scat_map, scat_true, line_marg, line_map, line_true, current_point = create_visualization_axes(rows, cols)
+    rows, cols = grids[0].shape
+    fig, ax, obs_img, scat_meas, pt_true, pt_marg, pt_map = \
+        _create_animation_axes(rows, cols)
 
     anim = FuncAnimation(
         fig,
-        update_animation_frame,
+        _update_animation_frame,
         frames=len(grids),
-        fargs=(grids, marginal_trajectory, map_trajectory, ground_truth, obs_img, scat_meas, scat_marg, scat_map, scat_true, line_marg, line_map, line_true, current_point, ax_obs, ax_traj),
+        fargs=(grids, marginal_trajectory, map_trajectory, ground_truth,
+               obs_img, scat_meas, pt_true, pt_marg, pt_map, ax),
         interval=800,
         blit=False,
-        repeat=False
+        repeat=False,
     )
 
-    fig.suptitle("Wumpus trajectory playback")
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
 
 
