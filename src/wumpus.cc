@@ -18,6 +18,9 @@
 // - Output one trajectory:
 //   - _marginal.txt: argmax of per-timestep marginals P(X_t | Z_1:T)
 //
+// CLI usage:
+//   wumpus <dataset_dir> <dataset_id> <out_prefix> [--pw v] [--pc v] [--em n]
+//
 // ============================================================================
 
 
@@ -45,42 +48,6 @@ using namespace emdw;
 // Short type aliases for emdw types
 using T = int;                  // RV value type (discrete: 0..n-1)
 using DT = DiscreteTable<T>;    // Factor implementation
-
-// ============================================================================
-// Configuration Flags
-// ============================================================================
-// Change these flags at the top of this file to control dataset and output options
-
-// Which dataset to process (1-3)
-// 1: 5x5 grid, 10 steps, pw=0.95, pc=0.05 (known params)
-// 2: 20x20 grid, 20 steps, pw=0.90, pc=0.10 (known params)
-// 3: 10x20 grid, 20 steps, unknown pw/pc (learned via EM)
-static const int ACTIVE_DATASET = 3;
-
-// Output directory for results (should match the dataset)
-static const string OUTPUT_DIR = "." ;  // Current directory
-
-// ============================================================================
-// Runtime Configuration (derived from ACTIVE_DATASET)
-// ============================================================================
-
-static string get_dataset_path(int dataset_id) {
-  switch (dataset_id) {
-    case 1: return "./Datasets-20260506/dataset1";
-    case 2: return "./Datasets-20260506/dataset2";
-    case 3: return "./Datasets-20260506/dataset3";
-    default: return "";
-  }
-}
-
-static string get_output_prefix(int dataset_id) {
-  switch (dataset_id) {
-    case 1: return OUTPUT_DIR + "/out_d1";
-    case 2: return OUTPUT_DIR + "/out_d2";
-    case 3: return OUTPUT_DIR + "/out_d3";
-    default: return "";
-  }
-}
 
 // ============================================================================
 // Output Utilities
@@ -161,33 +128,23 @@ static void parse_overrides(int argc, char** argv, DatasetConfig* cfg) {
 // ============================================================================
 
 int main(int argc, char** argv) {
+  // Require CLI arguments
+  if (argc < 4) {
+    cerr << "Usage: wumpus <dataset_dir> <dataset_id> <out_prefix> [--pw v] [--pc v] [--em n]\n";
+    return 1;
+  }
+
   // =========================================================================
   // SETUP PHASE: Load data and initialize inference domain
   // =========================================================================
 
-  // Use flag-based configuration if no command-line args, otherwise use CLI
-  int dataset_id;
-  string dataset_dir;
-  string out_prefix;
+  string dataset_dir = argv[1];
+  int dataset_id     = atoi(argv[2]);
+  string out_prefix  = argv[3];
 
-  if (argc >= 4) {
-    // Command-line mode (backward compatible)
-    dataset_dir = argv[1];
-    dataset_id = atoi(argv[2]);
-    out_prefix = argv[3];
-  } else {
-    // Flag-based mode (development)
-    dataset_id = ACTIVE_DATASET;
-    dataset_dir = get_dataset_path(dataset_id);
-    out_prefix = get_output_prefix(dataset_id);
-    cout << "Using flag-based configuration (ACTIVE_DATASET=" << dataset_id << ")\n";
-  }
-
-  // Load dataset configuration
+  // Load dataset configuration with optional CLI overrides
   DatasetConfig cfg = dataset_defaults(dataset_id);
-  if (argc >= 4) {
-    parse_overrides(argc, argv, &cfg);
-  }
+  parse_overrides(argc, argv, &cfg);
 
   // Load all observation grids from dataset directory
   vector<Grid> obs = load_dataset(dataset_dir);
