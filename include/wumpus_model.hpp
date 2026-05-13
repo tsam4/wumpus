@@ -13,9 +13,9 @@
 //
 // These functions implement the core model components:
 // 1. Numerical stability (clamping probabilities to safe range)
-// 2. Coordinate conversion (linear index ↔ grid coordinates)
+// 2. Coordinate conversion (linear index <-> grid coordinates)
 // 3. Grid file I/O and dataset loading
-// 4. Transition model construction (random walk with occupancy)
+// 4. Transition model construction (random walk with boundary failure)
 // 5. Emission model computation (noisy detections)
 // 6. MAP inference via Viterbi algorithm
 //
@@ -28,12 +28,12 @@
 // where (x, y) represents column x and row y, both 0-indexed.
 
 // linear_to_coord: convert cell index to (x, y) grid coordinates
-// Example: 5×5 grid, index=17 → x=2, y=3 (since 17 = 3*5 + 2)
+// Example: 5x5 grid, index=17 -> x=2, y=3 (since 17 = 3*5 + 2)
 inline int coord_x(int index, int cols) { return index % cols; }
 inline int coord_y(int index, int cols) { return index / cols; }
 
 // coord_to_linear: convert grid coordinates to cell index
-// Example: 5×5 grid, x=2, y=3 → index=17
+// Example: 5x5 grid, x=2, y=3 -> index=17
 inline int coord_to_index(int x, int y, int cols) { return y * cols + x; }
 
 // Numerical Stability
@@ -77,7 +77,7 @@ std::vector<std::vector<int>> build_neighbors(int rows, int cols);
 // - If target is out-of-bounds, wumpus stays put
 //
 // Transition model:
-//   P(X_t=j | X_{t-1}=i) = 0.25 for j in neighbors(i)
+//   P(X_t=j | X_{t-1}=i) = 0.25 for j in valid neighbors of i
 //   P(X_t=i | X_{t-1}=i) = sum of failed attempts (out-of-bounds moves)
 //
 // Returns sparse adjacency list adj[i] = {(j, p), ...}
@@ -126,7 +126,7 @@ std::vector<double> scale_from_log(const std::vector<double>& logp);
 // Belief Propagation Inference Helpers
 // =====================================
 
-// InferenceResult: holds outputs from a single BP inference pass
+// BPInferenceResult: holds outputs from a single BP inference pass
 struct BPInferenceResult {
   std::vector<std::vector<double>> gamma;     // gamma[t][s] = P(X_t=s | Z_1:T)
   std::vector<std::vector<double>> emis_log;  // emis_log[t][s] = log p(Z_t|X_t=s)

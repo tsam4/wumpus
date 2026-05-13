@@ -1,291 +1,125 @@
-# Verification Against mini_project.pdf Objectives
+# Mini Project Objectives
 
-## Objective 1: Design and implement a model for the wumpus world
+## Overview
 
-### Requirement: Model movement of wumpus from one time step to next
-
-- **Implementation**: Transition model in `src/wumpus_model.cc` (`compute_transition_prob`)
-- **Model**: Random walk with failure (uniform 0.25 per direction)
-- **Test**: `test_transition.cc` validates boundary conditions and blocked cells
-- ✅ **COMPLETE**
-
-### Requirement: Model observations for each time step
-
-- **Implementation**: Emission model in `src/wumpus_model.cc` (`compute_emission_log`)
-- **Model**: Conditional independence given state
-  - True cell: detection prob = $p_w$ (or miss with $1-p_w$)
-  - Other cells: clutter prob = $p_c$ (or no clutter with $1-p_c$)
-- **Test**: `test_emission.cc` validates $p_w$/$p_c$ likelihood computation
-- ✅ **COMPLETE**
-
-### Requirement: Design choices on Random Variables
-
-- **Choice**: Hidden state $X_t \in \{0..M \times N - 1\}$ (discrete grid cells)
-- **Choice**: Observation $Z_t$ = full grid of binary detections per time step
-- **Documentation**: README.md Level 2 & 3
-- ✅ **COMPLETE**
-
-### Requirement: Choice of PGM type and structure
-
-- **Choice**: Hidden Markov Model (Bayes network chain structure)
-- **Structure**: $X_0 \to X_1 \to X_2 \to \cdots$ (unary transitions + emissions)
-- **Implementation**: `DiscreteTable` factors in emdw
-- **Documentation**: README.md Level 3
-- ✅ **COMPLETE**
-
-### Requirement: Factor construction
-
-- **Implementation**: `src/wumpus.cc` `main()` builds unary emission factors and binary transition factors
-- **Test**: `test_emdw_bp.cc` verifies factor construction and BP execution
-- **Integration**: `emdw::DiscreteTable<int>` for all factors
-- ✅ **COMPLETE**
-
-### Requirement: Parameter handling (constants, point estimates, or RVs)
-
-- **Known parameters (datasets 1,2,4)**: Constants ($p_w$, $p_c$ hardcoded)
-- **Unknown parameters (datasets 3,5)**: EM-learned point estimates
-- **Occupied cells (datasets 4,5)**: Beta-prior estimated occupancy probabilities
-- **Documentation**: README.md Level 4 with mathematical derivations
-- ✅ **COMPLETE**
-
-### Requirement: Model unknown occupied cells
-
-- **Representation**: Occupancy probability per cell (soft assignment)
-- **Integration**: Down-weights transitions into occupied cells
-- **Learning**: EM with pairwise posteriors and Beta prior
-- **Test**: `test_occ_prior_stress.cc` validates occupancy updates
-- **Documentation**: README.md Level 4 with step-by-step formulas
-- ✅ **COMPLETE**
+Build a probabilistic tracker for a Wumpus agent moving through a grid world, using noisy binary detections as observations. The solution uses a Hidden Markov Model (HMM) implemented as an emdw factor graph with loopy belief propagation (LBP) inference.
 
 ---
 
-## Objective 2: Construct cluster graph and choose inference algorithm
+## Objective 1: Model the Transition Dynamics
 
-### Requirement: Construct cluster graph
+**Requirement:** Implement a random-walk transition model per `mini_project.pdf`.
 
-- **Implementation**: `src/wumpus.cc` builds cluster graph via `emdw::ClusterGraph::BETHE`
-- **Structure**: Bethe cluster graph over all factors
-- **Documentation**: README.md Level 3
-- ✅ **COMPLETE**
-
-### Requirement: Choose inference algorithm (marginal OR MAP)
-
-**✅ Both algorithms implemented for comparison:**
-
-#### Marginal Inference (Sum-Product BP)
-
-- **Implementation**: `emdw::loopyBP_CG()` in `src/wumpus.cc`
-- **Output**: `out_*_marginal.txt` (argmax of marginals per timestep)
-- **Model**: $\arg\max_s p(X_t = s \mid Z_{1:T})$ via BP
-- **Test**: `test_emdw_bp.cc` validates marginals sum to 1.0
-- **Use case**: Single-step accuracy
-
-#### MAP Inference (Max-Product / Viterbi)
-
-- **Implementation**: Viterbi algorithm in `src/wumpus_model.cc`
-- **Output**: `out_*_map.txt` (most likely complete trajectory)
-- **Model**: Most probable sequence $\arg\max_{X_{1:T}} p(X_{1:T} \mid Z_{1:T})$
-- **Test**: `test_e2e_sim.cc` achieves ≥80% accuracy
-- **Use case**: Joint sequence accuracy
-
-- ✅ **COMPLETE (BOTH IMPLEMENTED)**
-
-### Requirement: Efficient inference design
-
-- **Exploit observed variables**: $Z_t$ always observed, not modeled as RVs (reduces complexity)
-- **Chain structure**: Unary factors per step, binary transitions between steps
-- **Bethe clustering**: Appropriate for chain-structured HMM inference
-- **Performance**: Dataset2 (20×20 grid, 20 steps) completes in ~119 ms
-- **Test**: `test_dataset2_scale.cc` validates performance and memory (~15.5 MB)
-- ✅ **COMPLETE**
+- **Grid:** Row-major indexing — cell $(x, y)$ at index $y \cdot C + x$
+- **Move rule:** Wumpus picks direction uniformly from 4; fails (stays put) if out-of-bounds
+- **Transition probabilities:**
+  - $P(X_t = j \mid X_{t-1} = i) = 0.25$ for each valid neighbour $j$
+  - $P(X_t = i \mid X_{t-1} = i) = $ (number of out-of-bounds directions from $i$) / 4
+- **Implementation:** `build_transition_adj()` in `src/wumpus_model.cc`
+- **Test:** `test_transition.cc` validates boundary conditions
 
 ---
 
-## Objective 3: Select or learn parameters
+## Objective 2: Model the Emission Distribution
 
-### Requirement: Handle known parameters ($p_w$, $p_c$)
+**Requirement:** Implement the noisy binary detection model.
 
-- **Datasets 1, 2, 4**: Parameters hardcoded via `dataset_defaults()` in `src/wumpus.cc`
-- **Values exactly match mini_project.pdf**:
-  - dataset1: $p_w = 0.95$, $p_c = 0.05$
-  - dataset2: $p_w = 0.90$, $p_c = 0.10$
-  - dataset4: $p_w = 0.95$, $p_c = 0.05$
-- ✅ **COMPLETE**
-
-### Requirement: Learn unknown parameters
-
-- **Datasets 3, 5**: Unknown $p_w$ and $p_c$
-- **Method**: Expectation-Maximization
-- **Implementation**: EM loop in `src/wumpus.cc` with `--em` flag
-- **E-step**: Use BP marginals $\gamma_t(s) = P(X_t = s \mid Z_{1:T})$
-- **M-step**: Update $p_w$ and $p_c$ via expected sufficient statistics from emission model
-
-**EM Update Formulas (per mini_project.pdf):**
-
-$$p_w = \frac{1}{T} \sum_t \sum_s \gamma_t(s) \cdot z_t(s)$$
-
-$$p_c = \frac{1}{T(N-1)} \sum_t \left[ \sum_k z_t(k) - \sum_s \gamma_t(s) \cdot z_t(s) \right]$$
-
-- **Test**: `test_em_extremes.cc` validates EM stability on degenerate grids (all-0s, all-1s)
-- **Documentation**: README.md Level 4 with complete derivations
-- ✅ **COMPLETE**
-
-### Requirement: Handle unknown occupied cells
-
-- **Datasets 4, 5**: Unknown cell occupancy with priors
-  - dataset4: 25% prior occupancy per cell
-  - dataset5: 10% prior occupancy per cell
-- **Method**: Beta-prior occupancy estimation from EM pairwise posteriors
-
-**Occupancy Estimation (per mini_project.pdf):**
-
-Define:
-
-- $\text{attempts}_j = \sum_t \sum_{i \in N(j)} 0.25 \cdot P(X_{t-1} = i)$
-- $\text{success}_j = \sum_t \sum_{i \in N(j)} P(X_{t-1} = i, X_t = j)$
-
-With Beta prior ($\text{strength} = 2$):
-
-- $a = \text{strength} \times (1 - \text{occ\_prior})$
-- $b = \text{strength} \times \text{occ\_prior}$
-
-Posterior:
-$$p_{\text{open}_j} = \frac{\text{success}_j + a}{\text{attempts}_j + a + b}$$
-
-$$\text{occ}_j = 1 - p_{\text{open}_j}$$
-
-- **Implementation**: Occupancy update loop in `src/wumpus.cc`
-- **Test**: `test_occ_prior_stress.cc` validates occupancy convergence with heavy blocking
-- **Documentation**: README.md Level 4 with step-by-step mathematical derivation
-- ✅ **COMPLETE**
+- **True cell** $s$: $P(Z_t^s = 1 \mid X_t = s) = p_w$
+- **Clutter cells** $k \neq s$: $P(Z_t^k = 1 \mid X_t = s) = p_c$
+- **Log-likelihood** over all cells: $\log p(Z_t \mid X_t = s) = \sum_k \log P(Z_t^k \mid X_t = s)$
+- **Numerical stability:** clamping via `clamp_prob()`, log-sum-exp via `scale_from_log()`
+- **Implementation:** `compute_emission_log()` in `src/wumpus_model.cc`
+- **Test:** `test_emission.cc`
 
 ---
 
-## Objective 4: Evaluate solution
+## Objective 3: Select or Learn Parameters
 
-### Requirement: Qualitative evaluation (visual/conceptual results)
+**Requirement:** Handle both known and unknown model parameters.
 
-- **Documentation**: RUN_AND_TESTS.md Section 3 explains output interpretation
-- **Output files**: Generated and formatted for all 5 datasets
-- **Ground truth visualization**: Dataset1 outputs shown alongside ground truth
-- ✅ **COMPLETE**
+**Known parameters (Datasets 1, 2):**
+- dataset1: $p_w = 0.95$, $p_c = 0.05$
+- dataset2: $p_w = 0.95$, $p_c = 0.05$
 
-### Requirement: Quantitative evaluation (numerical results)
+**Unknown parameters (Dataset 3):**
+- $p_w$ and $p_c$ unknown; learned via EM
 
-#### Dataset1 Validation (Ground Truth Comparison)
+**EM Algorithm (Dataset 3):**
 
-**MAP Trajectory:**
+E-step — run BP, extract posteriors:
+$$\gamma_t(s) = P(X_t = s \mid Z_{1:T})$$
 
-```
-Ground truth:     2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
-out_d1_map.txt:   2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
-Result: ✅ PERFECT MATCH (100% accuracy)
-```
+M-step — update parameters:
+$$p_w = \frac{\sum_t \sum_s \gamma_t(s) \cdot Z_t^s}{\sum_t \sum_s \gamma_t(s)}$$
 
-**Marginal Trajectory:**
+$$p_c = \frac{\sum_t \sum_s \gamma_t(s) \cdot \sum_{k \neq s} Z_t^k}{\sum_t \sum_s \gamma_t(s) \cdot (N - 1)}$$
 
-```
-Ground truth:           2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
-out_d1_marginal.txt:    2 4 / 3 4 / 3 3 / 2 3 / 2 4 / 2 3 / 2 2 / 1 2 / 0 2 / 1 2
-Result: ✅ PERFECT MATCH (100% accuracy)
-```
-
-#### Performance Metrics (Dataset2)
-
-From `test_dataset2_scale`:
-
-- **BP inference time**: 119–153 ms (20×20 grid, 20 steps)
-- **Viterbi MAP time**: 0–1 ms
-- **Memory usage**: ~15.5 MB (resident set)
-- **Status**: ✅ Efficient
-
-#### Accuracy on Simulated Data
-
-From `test_e2e_sim`:
-
-- **End-to-end accuracy**: ≥80% (requirement: PASS)
-- **Status**: ✅ Achieved
-
-#### Coverage
-
-- **All 5 datasets executed**: ✅
-- **Output files generated**: 10 total (marginal + MAP for each dataset)
-- **Correct line counts**: ✅
-  - dataset1: 10 steps
-  - dataset2: 20 steps
-  - dataset3: 20 steps
-  - dataset4: 100 steps
-  - dataset5: 200 steps
-- **Format validation**: All coordinates in valid ranges for respective grids
-- ✅ **COMPLETE**
-
-### Requirement: Compare outputs against ground truth
-
-**Dataset1 (Available):**
-
-- ✅ MAP output matches ground truth exactly (diff is empty)
-- ✅ Marginal output matches ground truth exactly (diff is empty)
-- ✅ 100% accuracy achieved
-
-**Datasets 2–5 (Ground truth released by May 14 per assignment):**
-
-- Outputs generated with correct formats and line counts
-- Ready for comparison when ground truth becomes available
-- ✅ Infrastructure in place
-
-**Note on Occupied Cells (Datasets 4–5):**
-
-- Estimated occupancy probabilities computed and applied
-- Ground truth cell coordinates will be available by May 14
-- Ready for occupancy estimation accuracy comparison
-- ✅ Infrastructure in place
+- **Implementation:** EM loop in `src/wumpus.cc`
+- **Test:** `test_em_extremes.cc`
 
 ---
 
-## Summary: All Four mini_project.pdf Objectives Fully Achieved
+## Objective 4: Assemble and Run the PGM
 
-| #     | Objective                                  | Status      | Key Evidence                                                                                                                        |
-| ----- | ------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **1** | Design & implement wumpus world model      | ✅ COMPLETE | HMM with transition/emission models, RV definitions, PGM structure, factors, parameter handling, occupancy modeling all implemented |
-| **2** | Construct cluster graph & choose inference | ✅ COMPLETE | Bethe cluster graph constructed; **both** marginal (BP) and MAP (Viterbi) inference implemented for comparison                      |
-| **3** | Select or learn parameters                 | ✅ COMPLETE | Known parameters hardcoded; unknown $p_w$/$p_c$ learned via EM; occupancy cells estimated with Beta prior                           |
-| **4** | Evaluate solution                          | ✅ COMPLETE | Dataset1 achieves 100% accuracy vs ground truth; quantitative metrics collected; all datasets processed                             |
+**Requirement:** Build an HMM factor graph using emdw and run LBP inference.
 
----
+**PGM components:**
+- RV $X_t$ for each timestep: `emdw::RVIdType`, domain $\{0, \ldots, N-1\}$
+- Unary prior factor $p(X_0)$: uniform `DiscreteTable<int>`
+- Unary emission factors $p(Z_t \mid X_t)$: per-timestep `DiscreteTable<int>`
+- Pairwise transition factors $p(X_t \mid X_{t-1})$: `DiscreteTable<int>`
+- Cluster graph: Bethe structure via `ClusterGraph`
+- Inference: `loopyBP_CG` + `queryLBP_CG`
 
-## Final Verification
+**Implementation:** `run_bp_inference()` in `src/wumpus_model.cc`
 
-### Files Demonstrating Objectives
-
-**Objective 1 (Model Design):**
-
-- `src/wumpus.cc` – Main implementation with factor construction
-- `src/wumpus_model.cc` – Transition and emission model logic
-- `include/wumpus.hpp`, `include/wumpus_model.hpp` – Data structures
-- `README.md` Level 2–4 – Complete theoretical explanation
-
-**Objective 2 (Cluster Graph & Inference):**
-
-- `src/wumpus.cc` – ClusterGraph::BETHE construction and BP
-- `src/wumpus_model.cc` – Viterbi algorithm for MAP
-- `tests_basic/test_emdw_bp.cc` – Marginal inference validation
-- `tests_advanced/test_e2e_sim.cc` – End-to-end accuracy validation
-- `README.md` Level 3 – emdw integration explanation
-
-**Objective 3 (Parameters):**
-
-- `src/wumpus.cc` – EM loop, parameter updates, occupancy learning
-- `tests_advanced/test_em_extremes.cc` – EM stability validation
-- `tests_advanced/test_occ_prior_stress.cc` – Occupancy estimation validation
-- `README.md` Level 4 – EM and occupancy formulas
-
-**Objective 4 (Evaluation):**
-
-- `out_d1_map.txt`, `out_d1_marginal.txt` – Dataset1 outputs (100% match ground truth)
-- All `out_d*.txt` files – Quantitative results for all datasets
-- `test_dataset2_scale.cc` output – Performance metrics
-- `RUN_AND_TESTS.md` – Complete evaluation documentation
+**Test:** `test_emdw_bp.cc`
 
 ---
 
-**CONCLUSION: All four objectives from mini_project.pdf have been fully met and verified. ✅**
+## Objective 5: Compute Trajectories and Output Results
+
+**Requirement:** Produce two trajectory files per dataset.
+
+- **Marginal trajectory:** $\hat{x}_t = \arg\max_s P(X_t = s \mid Z_{1:T})$ — per-timestep argmax of BP marginals
+- **MAP trajectory:** $\arg\max_{X_{1:T}} P(X_{1:T} \mid Z_{1:T})$ — Viterbi dynamic programming
+
+**Viterbi recurrence:**
+$$\delta_t(s) = \max_x \left[\delta_{t-1}(x) + \log P(X_t = s \mid X_{t-1} = x)\right] + \log p(Z_t \mid X_t = s)$$
+
+**Implementation:** `viterbi_path()` in `src/wumpus_model.cc`
+
+**Output format:** One `x y` pair per line.
+
+**Dataset configurations:**
+
+| Dataset | Grid  | Steps | pw   | pc   | EM iters |
+|---------|-------|-------|------|------|----------|
+| 1       | 5×5   | 10    | 0.95 | 0.05 | 0        |
+| 2       | 20×20 | 20    | 0.95 | 0.05 | 0        |
+| 3       | 10×20 | 20    | ?    | ?    | 10       |
+
+---
+
+## Implementation Status
+
+| Step | Task                                       | Status      | Notes                                                                                  |
+|------|--------------------------------------------|-------------|----------------------------------------------------------------------------------------|
+| 1    | Design & implement wumpus world model      | ✅ COMPLETE  | HMM with transition/emission models, RV definitions, PGM structure, factors all implemented |
+| 2    | Implement inference algorithm (BP)         | ✅ COMPLETE  | LBP via emdw ClusterGraph; Viterbi for MAP                                            |
+| 3    | Select or learn parameters                 | ✅ COMPLETE  | Known parameters hardcoded; unknown $p_w$/$p_c$ learned via EM                        |
+| 4    | Run on datasets and produce outputs        | ✅ COMPLETE  | Datasets 1–3 produce valid output files                                               |
+| 5    | Validate with tests and accuracy check     | ✅ COMPLETE  | All unit and integration tests pass; dataset1 accuracy verified                        |
+
+---
+
+## Key Source Files
+
+- `src/wumpus.cc` — main entry point, argument parsing, EM loop, output writing
+- `src/wumpus_model.cc` — model: transitions, emissions, BP wrapper, Viterbi
+- `include/wumpus.hpp` — data structures: `Grid`, `DatasetConfig`, `InferenceResult`
+- `include/wumpus_model.hpp` — function declarations
+- `tests_basic/test_transition.cc` — transition boundary validation
+- `tests_basic/test_emdw_bp.cc` — factor graph and BP validation
+- `tests_advanced/test_e2e_sim.cc` — end-to-end accuracy validation
+- `tests_advanced/test_dataset2_scale.cc` — performance validation

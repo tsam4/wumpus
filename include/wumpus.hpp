@@ -15,8 +15,8 @@
 // Key concepts from mini_project.pdf:
 // - The wumpus performs a random walk: at each step, it chooses a direction
 //   uniformly from 4 (up, down, left, right) and attempts to move.
-// - If the target cell is outside grid bounds or occupied (blocked), the
-//   wumpus stays in its current cell.
+// - If the target cell is outside grid bounds, the wumpus stays in its
+//   current cell.
 // - Observations: each cell independently emits a binary detection
 //   (1 or 0) with probabilities pw (true cell) and pc (clutter).
 // - Goal: infer the wumpus position at each timestep from these detections.
