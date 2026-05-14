@@ -135,30 +135,42 @@ test-all: test test-advanced
 # Demo Target
 # ============================================================================
 
+# Helper macro: run one dataset and print confirmation + trajectory preview
+# Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
+define demo_run
+	@echo ""
+	@echo "$(CYAN)┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo "$(CYAN)┃ Dataset $(1) — $(2)$(NC)"
+	@if [ -n "$(5)" ]; then echo "$(CYAN)┃ $(5)$(NC)"; fi
+	@echo "$(CYAN)┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@if [ ! -d "$(3)" ]; then \
+		echo "$(RED)  ✗ Dataset dir not found: $(3)$(NC)"; exit 1; \
+	fi
+	@start=$$(date +%s); \
+	$(WUMPUS_BIN) $(3) $(1) $(4) 2>&1; \
+	status=$$?; \
+	duration=$$(( $$(date +%s) - start )); \
+	if [ $$status -ne 0 ]; then \
+		echo "$(RED)  ✗ wumpus exited with status $$status$(NC)"; exit $$status; \
+	fi; \
+	out="$(4)_marginal.txt"; \
+	if [ ! -f "$$out" ]; then \
+		echo "$(RED)  ✗ Output file not written: $$out$(NC)"; exit 1; \
+	fi; \
+	lines=$$(wc -l < "$$out" | tr -d ' '); \
+	echo "$(GREEN)  ✓ Completed in $${duration}s$(NC)"; \
+	echo "  Output: $$out ($${lines} timesteps)"; \
+	echo "  Predicted trajectory (first 3 positions):"; \
+	head -3 "$$out" | awk '{printf "    t=%-2d  x=%-2s  y=%s\n", NR-1, $$1, $$2}'
+endef
+
 .PHONY: demo
 demo: build
+	$(call demo_run,1,5x5 grid 10 timesteps  pw=0.95 pc=0.05  belief propagation,$(D1_DIR),$(OUT_D1),Known parameters — single BP pass)
+	$(call demo_run,2,20x20 grid 20 timesteps  pw=0.90 pc=0.10  belief propagation,$(D2_DIR),$(OUT_D2),Known parameters — single BP pass)
+	$(call demo_run,3,10x20 grid 20 timesteps  EM parameter learning,$(D3_DIR),$(OUT_D3),Unknown pw/pc — 6 EM iterations then final BP pass)
 	@echo ""
-	@echo "============================================================"
-	@echo " Dataset 1 — 5×5 grid, 10 timesteps (pw=0.95, pc=0.05)"
-	@echo "============================================================"
-	@if [ ! -d "$(D1_DIR)" ]; then \
-		echo "ERROR: Dataset not found at $(D1_DIR)"; \
-		echo "Make sure Datasets-20260506/ is in $(PROJECT_DIR)"; \
-		exit 1; \
-	fi
-	@$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
-	@echo ""
-	@echo "============================================================"
-	@echo " Dataset 2 — 20×20 grid, 20 timesteps"
-	@echo "============================================================"
-	@$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
-	@echo ""
-	@echo "============================================================"
-	@echo " Dataset 3 — 10×20 grid, 20 timesteps (EM learning)"
-	@echo "============================================================"
-	@$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
-	@echo ""
-	@echo "$(GREEN)✓ Demo complete. Output files written to $(PROJECT_DIR)/out_d*.txt$(NC)"
+	@echo "$(GREEN)✓ Demo complete$(NC)"
 
 # ============================================================================
 # Run Targets (Execute Datasets)
