@@ -114,7 +114,7 @@ test: build
 .PHONY: test-advanced
 test-advanced: build
 	@echo "Running advanced integration tests..."
-	@for t in test_e2e_sim test_dataset2_scale; do \
+	@for t in test_e2e_sim test_dataset2_scale test_em_extremes; do \
 		if [ -x $(WUMPUS_TEST_DIR)/$$t ]; then \
 			echo "  $$t: PASS"; \
 			$(WUMPUS_TEST_DIR)/$$t >/dev/null 2>&1 || echo "  $$t: FAIL"; \

@@ -19,19 +19,27 @@ The program estimates the trajectory of a Wumpus moving on a grid, given noisy b
 
 ```
 src/
-  wumpus.cc          # Main program: CLI parsing, EM loop, output
-  wumpus_model.cc    # BP inference, emission/transition models
+  wumpus.cc            # Main program: CLI parsing, EM loop, output
+  wumpus_model.cc      # BP inference, emission/transition models
 include/
-  wumpus.hpp         # Shared types: Grid, DatasetConfig, coord helpers
-  wumpus_model.hpp   # BP inference interface
-tests/               # Unit tests (CMake targets)
-tests_basic/         # Basic unit test sources
-tests_advanced/      # Advanced integration test sources
+  wumpus.hpp           # Shared types: Grid, DatasetConfig, coord helpers
+  wumpus_model.hpp     # BP inference interface
+tests/
+  basic/               # Basic unit test sources
+    test_emission.cc
+    test_transition.cc
+    test_emdw_bp.cc
+    test_parser.cc
+  advanced/            # Advanced integration test sources
+    test_e2e_sim.cc
+    test_dataset2_scale.cc
+    test_em_extremes.cc
+    test_occ_prior_stress.cc  # stub only — datasets 4/5 not in scope
 scripts/
   compute_accuracy.py  # Accuracy scoring vs ground truth
-visualize.py         # Output visualizer (generates GIFs/frames)
-Makefile             # Top-level build/run/test orchestration
-emdw_de424/          # emdw probabilistic toolkit (do not modify)
+  visualize.py         # Output visualizer (generates GIFs/frames)
+Makefile               # Top-level build/run/test orchestration
+emdw_de424/            # emdw probabilistic toolkit (do not modify)
 ```
 
 ## CLI Interface
@@ -59,6 +67,7 @@ wumpus <dataset_dir> <dataset_id> <out_prefix> [--pw v] [--pc v] [--em n]
 - **Single output file per run:** `_marginal.txt` — argmax of per-timestep marginals P(X_t | Z_1:T).
 - **EM is only enabled for dataset 3** via `cfg.learn_pwpc = true` and `cfg.max_iters = 6`.
 - **emdw** is the probabilistic toolkit providing `DiscreteTable`, `ClusterGraph`, and `LBP_CG`. Do not modify files under `emdw_de424/`.
+- **CMakeLists** (`emdw_de424/devel/emdw/src/bin/CMakeLists.txt`) points to `tests/basic/` and `tests/advanced/` for all test executables.
 
 ## Files NOT in Repo (gitignored)
 
@@ -77,6 +86,14 @@ make demo         # Run all datasets with verbose output
 make run-d1       # Run dataset 1 only
 make accuracy     # Score dataset 1 vs ground truth
 make clean        # Remove output txt files
+```
+
+## Test Targets
+
+```bash
+make test           # Run basic unit tests (test_parser, test_emission, test_transition, test_emdw_bp)
+make test-advanced  # Run advanced tests (test_e2e_sim, test_dataset2_scale, test_em_extremes)
+make test-all       # Run both
 ```
 
 ## Accuracy Scoring
