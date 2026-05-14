@@ -69,6 +69,7 @@ def load_grid_file(filepath):
 
 
 def grid_value(grid, y, x):
+    # numpy and list-of-lists indexing differ
     return int(grid[y, x]) if NP_AVAILABLE else grid[y][x]
 
 
@@ -150,7 +151,7 @@ def _draw_grid_lines(ax, rows, cols):
 
 
 def _draw_true_outline(ax, tx, ty):
-    if tx < 0:
+    if tx < 0:  # no ground truth for this dataset
         return
     ax.add_patch(mpatches.FancyBboxPatch(
         (tx - 0.46, ty - 0.46), 0.92, 0.92,
@@ -163,7 +164,7 @@ def _draw_true_outline(ax, tx, ty):
 
 
 def _draw_prediction_circle(ax, mx, my):
-    if mx < 0:
+    if mx < 0:  # no prediction available
         return
     ax.add_patch(mpatches.Circle(
         (mx, my), _CIRCLE_RADIUS,
@@ -177,7 +178,7 @@ def _draw_prediction_circle(ax, mx, my):
 def _style_ax(ax, rows, cols, timestep):
     ax.set_facecolor("white")
     ax.set_xlim(-0.5, cols - 0.5)
-    ax.set_ylim(rows - 0.5, -0.5)
+    ax.set_ylim(rows - 0.5, -0.5)  # y-axis flipped so row 0 is at the top
     ax.set_xticks(range(cols))
     ax.set_yticks(range(rows))
     ax.tick_params(labelsize=8, length=0)
@@ -334,7 +335,7 @@ def play_visualization(grids, marginal_trajectory, ground_truth=None):
     anim = FuncAnimation(  # noqa: F841 -- keep ref to prevent GC
         fig, _update,
         frames=len(grids),
-        interval=800,
+        interval=800,  # ms per frame for interactive playback
         blit=False,
         repeat=False,
     )
