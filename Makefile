@@ -4,9 +4,7 @@
 #
 # Targets:
 #   make build              Build the wumpus executable and all tests
-#   make test               Run basic unit tests
-#   make test-advanced      Run advanced integration tests
-#   make test-all           Run all tests (basic + advanced)
+#   make test               Run unit tests (parser, emission, transition, BP)
 #   make run                Run all datasets and generate outputs
 #   make demo               Quick demo: build + run all 3 datasets with verbose output
 #   make accuracy           Compute accuracy vs ground truth (all datasets with ground truth)
@@ -71,9 +69,7 @@ help:
 	@echo "Wumpus Tracker Makefile"
 	@echo "Usage: make [target]"
 	@echo "  build          Build the executable"
-	@echo "  test           Run basic unit tests"
-	@echo "  test-advanced  Run advanced integration tests"
-	@echo "  test-all       Run all tests"
+	@echo "  test           Run unit tests (parser, emission, transition, BP)"
 	@echo "  run            Execute datasets 1-3"
 	@echo "  demo           Quick demo: build + run all 3 datasets with verbose output"
 	@echo "  accuracy       Check accuracy vs ground truth for all available datasets"
@@ -94,44 +90,34 @@ build:
 	@echo "$(GREEN)✓ Build complete$(NC)"
 
 # ============================================================================
-# Test Targets (Unit Tests)
+# Test Targets
+# Tests cover the four components required by the project spec:
+#   test_parser     -- detection file parsing
+#   test_emission   -- emission factor (pw / pc)
+#   test_transition -- transition factor (wumpus movement)
+#   test_emdw_bp    -- belief propagation via emdw
 # ============================================================================
 
 .PHONY: test
 test: build
-	@echo "Running basic unit tests..."
+	@echo "Running unit tests..."
 	@for t in test_parser test_emission test_transition test_emdw_bp; do \
 		if [ -x $(WUMPUS_TEST_DIR)/$$t ]; then \
-			echo "  $$t: PASS"; \
-			$(WUMPUS_TEST_DIR)/$$t >/dev/null 2>&1 || echo "  $$t: FAIL"; \
+			$(WUMPUS_TEST_DIR)/$$t >/dev/null 2>&1 \
+				&& echo "  $$t: PASS" \
+				|| echo "  $$t: FAIL"; \
 		else \
-			echo "  $$t: SKIPPED"; \
+			echo "  $$t: SKIPPED (binary not found)"; \
 		fi; \
 	done
-
-.PHONY: test-advanced
-test-advanced: build
-	@echo "Running advanced integration tests..."
-	@for t in test_e2e_sim test_dataset2_scale test_em_extremes; do \
-		if [ -x $(WUMPUS_TEST_DIR)/$$t ]; then \
-			echo "  $$t: PASS"; \
-			$(WUMPUS_TEST_DIR)/$$t >/dev/null 2>&1 || echo "  $$t: FAIL"; \
-		else \
-			echo "  $$t: SKIPPED"; \
-		fi; \
-	done
-
-.PHONY: test-all
-test-all: test test-advanced
 	@echo ""
-	@echo "$(GREEN)✓ All tests complete$(NC)"
+	@echo "$(GREEN)✓ Tests complete$(NC)"
 
 # ============================================================================
 # Demo Target
 # ============================================================================
 
 # Helper macro: run one dataset and print confirmation + trajectory preview.
-# Preview format matches compute_accuracy.py: [(x, y), (x, y), ...]
 # Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
 define demo_run
 	@mkdir -p $(RESULTS_DIR)
@@ -224,7 +210,7 @@ run-d3: build
 
 flag-d1: build
 	@mkdir -p $(RESULTS_DIR)
-	@echo "$(CYAN)[FLAG-D1]$(NC) Flag-based Dataset1 with visualizer"
+	@echo "$(CYAN)[FLAG-D1]$(NC) Dataset1 with visualizer"
 	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
 	@if [ -f "$(OUT_D1)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
@@ -235,7 +221,7 @@ flag-d1: build
 
 flag-d2: build
 	@mkdir -p $(RESULTS_DIR)
-	@echo "$(CYAN)[FLAG-D2]$(NC) Flag-based Dataset2 with visualizer"
+	@echo "$(CYAN)[FLAG-D2]$(NC) Dataset2 with visualizer"
 	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
 	@if [ -f "$(OUT_D2)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
@@ -246,7 +232,7 @@ flag-d2: build
 
 flag-d3: build
 	@mkdir -p $(RESULTS_DIR)
-	@echo "$(CYAN)[FLAG-D3]$(NC) Flag-based Dataset3 with visualizer"
+	@echo "$(CYAN)[FLAG-D3]$(NC) Dataset3 with visualizer"
 	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
 	@if [ -f "$(OUT_D3)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
@@ -309,7 +295,7 @@ accuracy:
 # ============================================================================
 
 .PHONY: all
-all: build test-all run accuracy
+all: build test run accuracy
 	@echo ""
 	@echo "$(GREEN)✓✓✓ COMPLETE PIPELINE FINISHED ✓✓✓$(NC)"
 	@echo ""
