@@ -1,29 +1,28 @@
-# ============================================================================
-# Makefile: Build, Test, Run All Datasets, and Report Results
+# Wumpus Tracker — Makefile
 #
-# Targets:
-#   make build              Build the wumpus executable and all tests
-#   make test               Run unit tests (parser, emission, transition, BP)
-#   make run                Run all datasets and generate outputs
-#   make demo               Quick demo: build + run all 3 datasets with verbose output
-#   make accuracy           Compute accuracy vs ground truth (all datasets with ground truth)
-#   make all                Full pipeline: build + test + run + accuracy
-#   make clean              Remove generated output files (results/ + emdw runtime artifacts)
+# Common targets:
+#   make build       Build the wumpus executable and all unit tests
+#   make test        Run the four unit tests (parser, emission, transition, BP)
+#   make run         Run all three datasets, then visualize each
+#   make demo        Same as run but prints a trajectory preview per dataset
+#   make accuracy    Compare outputs against ground truth where available
+#   make all         Full pipeline: build → test → run → accuracy
+#   make clean       Delete results/ and emdw runtime artifacts
 #
-# Environment:
-#   EMDW_BUILD:  Path to emdw build directory (default: repo-local)
-#   WUMPUS_BIN:  Path to wumpus executable
-#   PROJECT_DIR: Path to this project (auto-detected)
-#   DATASET_DIR: Path to datasets (auto-detected)
+# Per-dataset convenience:
+#   make run-d1/2/3        Run a single dataset (no visualizer)
+#   make flag-d1/2/3       Run a single dataset + visualize
+#   make visualize-d1/2/3  Re-run visualizer on existing output files
 #
-# Outputs:
-#   All .txt trajectory files and .gif animations are written to results/.
-#   err.txt and emdw_RandomEngine_seedVal.txt are written by emdw to the
-#   project root (hardcoded in emdw source); make clean removes them.
+# Environment you can override:
+#   EMDW_BUILD   Path to the emdw cmake build dir  (default: repo-local)
 #
-# ============================================================================
+# All output files (.txt trajectories, .gif animations) go into results/.
+# emdw also writes err.txt and emdw_RandomEngine_seedVal.txt to the repo root
+# (hardcoded inside emdw); make clean removes those too.
 
-# Configuration
+# --- Paths -------------------------------------------------------------------
+
 PROJECT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 EMDW_BUILD  ?= $(PROJECT_DIR)/emdw_de424/devel/emdw/build
 DATASET_DIR := $(PROJECT_DIR)/Datasets-20260506
@@ -33,11 +32,9 @@ WUMPUS_TEST_DIR := $(EMDW_BUILD)/src/bin
 PYTHON      := $(if $(wildcard $(PROJECT_DIR)/.venv/bin/python),$(PROJECT_DIR)/.venv/bin/python,python3)
 VISUALIZER  := $(PROJECT_DIR)/scripts/visualize.py
 ACCURACY_SCRIPT := $(PROJECT_DIR)/scripts/compute_accuracy.py
+GT_BASE     := $(PROJECT_DIR)
 
-# Ground truth directory pattern: "Ground truth for dataset<N>-*"
-GT_BASE := $(PROJECT_DIR)
-
-# Output file prefixes -- all outputs land in results/
+# Output prefixes — all outputs land in results/
 OUT_D1 := $(RESULTS_DIR)/out_d1
 OUT_D2 := $(RESULTS_DIR)/out_d2
 OUT_D3 := $(RESULTS_DIR)/out_d3
@@ -47,15 +44,15 @@ D1_DIR := $(DATASET_DIR)/dataset1
 D2_DIR := $(DATASET_DIR)/dataset2
 D3_DIR := $(DATASET_DIR)/dataset3
 
-# ANSI color codes for output
+# ANSI colours
 RED    := \033[0;31m
 GREEN  := \033[0;32m
 YELLOW := \033[1;33m
 CYAN   := \033[0;36m
-NC     := \033[0m  # No Color
+NC     := \033[0m
 
-# ============================================================================
-# Default target
+# --- Default target ----------------------------------------------------------
+
 .PHONY: help
 help:
 	@echo "Wumpus Tracker Makefile"
@@ -71,9 +68,7 @@ help:
 	@echo "Additional targets: run-d1 run-d2 run-d3 visualize-d1 visualize-d2 visualize-d3"
 	@echo ""
 
-# ============================================================================
-# Build Targets
-# ============================================================================
+# --- Build -------------------------------------------------------------------
 
 .PHONY: build
 build:
@@ -81,13 +76,12 @@ build:
 	@cmake --build emdw_de424/devel/emdw/build --parallel 12 2>&1 | grep -E "^\[|error:|warning:" | grep -v "warning:" || true
 	@echo "$(GREEN)✓ Build complete$(NC)"
 
-# ============================================================================
-# Test Targets
-# Tests cover four  required by the project spec:
-#   test_parser     -- detection file parsing
-#   test_emission   -- emission factor (pw / pc)
-#   test_transition -- transition factor (wumpus movement)
-#   test_emdw_bp    -- belief propagation via emdw
+# --- Tests -------------------------------------------------------------------
+# Covers the four components required by the project spec:
+#   test_parser     — detection file parsing
+#   test_emission   — emission factor (pw / pc)
+#   test_transition — transition factor (wumpus movement)
+#   test_emdw_bp    — belief propagation via emdw
 
 .PHONY: test
 test: build
@@ -104,12 +98,12 @@ test: build
 	@echo ""
 	@echo "$(GREEN)✓ Tests complete$(NC)"
 
-# ============================================================================
-# Demo Target
-# ============================================================================
-
-# Helper macro: run one dataset and print confirmation + trajectory preview.
+# --- Demo --------------------------------------------------------------------
+# Runs each dataset and prints a short trajectory preview (first/last 5 steps)
+# then immediately visualizes. Handy for a quick sanity check.
+#
 # Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
+
 define demo_run
 	@mkdir -p $(RESULTS_DIR)
 	@echo ""
@@ -147,9 +141,9 @@ demo: build
 	@echo ""
 	@echo "$(GREEN)✓ Demo complete$(NC)"
 
-# ============================================================================
-# Run Targets (Execute Datasets)
-# ============================================================================
+# --- Run ---------------------------------------------------------------------
+# Runs all three datasets quietly, then visualizes each in turn.
+# For a noisier run with trajectory previews, use make demo instead.
 
 .PHONY: run
 run: build
@@ -170,6 +164,7 @@ run: build
 	@$(PYTHON) $(VISUALIZER) 3
 	@echo "$(GREEN)✓ Visualizations complete$(NC)"
 
+# Single-dataset run targets — no visualizer, useful for iterating quickly.
 .PHONY: run-d1
 run-d1: build
 	@mkdir -p $(RESULTS_DIR)
@@ -200,9 +195,9 @@ run-d3: build
 	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
-# ============================================================================
-# Flag-Based Targets (run with visualizer)
-# ============================================================================
+# --- Flag-based targets ------------------------------------------------------
+# These recompile (build is a dependency) then run + visualize a single dataset.
+# Useful when iterating on wumpus.cc and wanting immediate visual feedback.
 
 .PHONY: flag-d1 flag-d2 flag-d3
 
@@ -239,7 +234,7 @@ flag-d3: build
 		echo "$(RED)✗ Output files not found$(NC)"; \
 	fi
 
-# Convenience targets for visualizer-only (without recompiling)
+# Re-run the visualizer on existing output files without rerunning wumpus.
 .PHONY: visualize-d1 visualize-d2 visualize-d3
 visualize-d1:
 	@echo "$(CYAN)[VISUALIZE-D1]$(NC)"
@@ -253,12 +248,13 @@ visualize-d3:
 	@echo "$(CYAN)[VISUALIZE-D3]$(NC)"
 	@$(PYTHON) $(VISUALIZER) 3
 
-# ============================================================================
-# Accuracy Target (Compare with Ground Truth)
-# ============================================================================
-
-# Internal macro: check one dataset against its ground truth
+# --- Accuracy ----------------------------------------------------------------
+# Compares each dataset's marginal output against the ground truth trajectory
+# if a matching "Ground truth for dataset<N>-*" directory exists at repo root.
+# Silently skips datasets with no ground truth.
+#
 # Usage: $(call check_accuracy, N, OUT_PREFIX)
+
 define check_accuracy
 	@gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$(1)-*" 2>/dev/null | head -1); \
 	if [ -z "$$gt_dir" ]; then \
@@ -288,9 +284,7 @@ accuracy:
 	@echo ""
 	@echo "$(GREEN)✓ Accuracy check complete$(NC)"
 
-# ============================================================================
-# Combined Targets
-# ============================================================================
+# --- Combined ----------------------------------------------------------------
 
 .PHONY: all
 all: build test run accuracy
@@ -298,9 +292,7 @@ all: build test run accuracy
 	@echo "$(GREEN)✓✓✓ COMPLETE PIPELINE FINISHED ✓✓✓$(NC)"
 	@echo ""
 
-# ============================================================================
-# Cleanup
-# ============================================================================
+# --- Cleanup -----------------------------------------------------------------
 
 .PHONY: clean
 clean:
@@ -309,6 +301,8 @@ clean:
 	@rm -f $(PROJECT_DIR)/err.txt $(PROJECT_DIR)/emdw_RandomEngine_seedVal.txt
 	@echo "$(GREEN)✓ Clean complete$(NC)"
 
+# Removes cmake-generated files from the build dir without touching source.
+# Run this if cmake gets confused after moving files or switching branches.
 .PHONY: clean-build
 clean-build:
 	@echo "Removing emdw build artifacts..."
@@ -316,9 +310,7 @@ clean-build:
 	         $(EMDW_BUILD)/CMakeCache.txt $(EMDW_BUILD)/Makefile
 	@echo "$(GREEN)✓ Build clean complete$(NC)"
 
-# ============================================================================
-# Diagnostic Targets
-# ============================================================================
+# --- Diagnostics -------------------------------------------------------------
 
 .PHONY: info
 info:
@@ -349,10 +341,6 @@ info:
 		echo "$(RED)✗ Dataset directory NOT found$(NC)"; \
 	fi
 
-# ============================================================================
-# Phony targets
-# ============================================================================
+# -----------------------------------------------------------------------------
 .PHONY: .FORCE
 .FORCE:
-
-# End of Makefile
