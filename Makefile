@@ -216,7 +216,7 @@ visualize-d3:
 # Usage: $(call check_accuracy, N, OUT_PREFIX)
 
 define check_accuracy
-	@gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$(1)-*" 2>/dev/null | head -1); \
+	@gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$(1)" 2>/dev/null | head -1); \
 	if [ -z "$$gt_dir" ]; then \
 		echo "  Dataset $(1): no ground truth directory found — skipping"; \
 	else \
