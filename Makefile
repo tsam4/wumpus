@@ -70,7 +70,7 @@ help:
 	@echo "Usage: make [target]"
 	@echo "  build          Build the executable"
 	@echo "  test           Run unit tests (parser, emission, transition, BP)"
-	@echo "  run            Execute datasets 1-3"
+	@echo "  run            Execute datasets 1-3 and visualize"
 	@echo "  demo           Quick demo: build + run all 3 datasets with verbose output"
 	@echo "  accuracy       Check accuracy vs ground truth for all available datasets"
 	@echo "  all            Full pipeline: build, test, run, accuracy"
@@ -143,7 +143,9 @@ define demo_run
 	first5=$$(head -5 "$$out" | awk '{printf "(" $$1 ", " $$2 ")"}' | sed 's/)(/, /g; s/^/[/; s/$$/]/'); \
 	last5=$$(tail -5  "$$out" | awk '{printf "(" $$1 ", " $$2 ")"}' | sed 's/)(/, /g; s/^/[/; s/$$/]/'); \
 	echo "  First 5: $$first5"; \
-	echo "  Last 5:  $$last5";
+	echo "  Last 5:  $$last5"; \
+	echo "$(CYAN)  Visualizing...$(NC)"; \
+	$(PYTHON) $(VISUALIZER) $(1)
 endef
 
 .PHONY: demo
@@ -171,6 +173,11 @@ run: build
 	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null && echo "    done" || echo "    FAILED"; \
 	total=$$(( $$(date +%s) - start )); \
 	echo "$(GREEN)✓ All datasets complete in $${total}s$(NC)"
+	@echo "Generating visualizations..."
+	@$(PYTHON) $(VISUALIZER) 1
+	@$(PYTHON) $(VISUALIZER) 2
+	@$(PYTHON) $(VISUALIZER) 3
+	@echo "$(GREEN)✓ Visualizations complete$(NC)"
 
 .PHONY: run-d1
 run-d1: build
