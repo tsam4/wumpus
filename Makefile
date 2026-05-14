@@ -24,6 +24,9 @@ BIN_DIR   := $(BUILD_DIR)/src/bin
 DATA_DIR  := data
 OUT_DIR   := results
 
+# macOS uses sysctl; Linux uses nproc
+NPROC := $(shell sysctl -n hw.logicalcpu 2>/dev/null || nproc)
+
 .PHONY: all configure build demo tests clean help
 
 # ----------------------------------------------------------------------------
@@ -35,7 +38,7 @@ configure:
 	cmake -S emdw_de424/devel/emdw -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release
 
 build:
-	cmake --build $(BUILD_DIR) --parallel $$(nproc)
+	cmake --build $(BUILD_DIR) --parallel $(NPROC)
 
 # ----------------------------------------------------------------------------
 # demo: run the tracker on datasets 1-3 and print the marginal trajectories
@@ -107,10 +110,11 @@ tests: build
 	@echo "All tests passed."
 
 # ----------------------------------------------------------------------------
-# clean
+# clean: remove the entire build directory
+# (cmake --target clean fails if the cache doesn't exist yet)
 # ----------------------------------------------------------------------------
 clean:
-	cmake --build $(BUILD_DIR) --target clean
+	rm -rf $(BUILD_DIR)
 
 # ----------------------------------------------------------------------------
 # help

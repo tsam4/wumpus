@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# CMAKE_SOURCE_DIR = emdw_de424/devel/emdw
+# ../../../        = repo root  (where src/ and tests/ live)
+set(WUMPUS_ROOT ${CMAKE_SOURCE_DIR}/../../../)
+
 # ============================================================
 # example: reference binary shipped with the emdw userguide
 # ============================================================
@@ -10,68 +14,65 @@ target_link_libraries(example emdw)
 
 # ============================================================
 # wumpus: main DE424 tracker binary
-# Compiled from src/ which lives two levels above this CMakeLists.
 # ============================================================
 add_executable(wumpus
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/src/wumpus.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(wumpus PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(wumpus PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(wumpus emdw)
 
 # ============================================================
-# tests_basic: unit tests covering transition, emission, parser, BP
-# These map directly to the required tests in mini_project.pdf.
+# tests_basic: transition, emission, parser, BP
 # ============================================================
 add_executable(test_transition
-  ${CMAKE_SOURCE_DIR}/../../tests/basic/test_transition.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/tests/basic/test_transition.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(test_transition PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(test_transition PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(test_transition emdw)
 
 add_executable(test_emission
-  ${CMAKE_SOURCE_DIR}/../../tests/basic/test_emission.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/tests/basic/test_emission.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(test_emission PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(test_emission PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(test_emission emdw)
 
 add_executable(test_parser
-  ${CMAKE_SOURCE_DIR}/../../tests/basic/test_parser.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/tests/basic/test_parser.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(test_parser PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(test_parser PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(test_parser emdw)
 
 add_executable(test_emdw_bp
-  ${CMAKE_SOURCE_DIR}/../../tests/basic/test_emdw_bp.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/tests/basic/test_emdw_bp.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(test_emdw_bp PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(test_emdw_bp PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(test_emdw_bp emdw)
 
 # ============================================================
 # tests_advanced: EM robustness, end-to-end sim, scalability
-# These go beyond the required suite and live in tests/advanced/.
 # ============================================================
 add_executable(test_em_extremes
-  ${CMAKE_SOURCE_DIR}/../../tests/advanced/test_em_extremes.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/tests/advanced/test_em_extremes.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(test_em_extremes PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(test_em_extremes PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(test_em_extremes emdw)
 
 add_executable(test_e2e_sim
-  ${CMAKE_SOURCE_DIR}/../../tests/advanced/test_e2e_sim.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/tests/advanced/test_e2e_sim.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(test_e2e_sim PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(test_e2e_sim PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(test_e2e_sim emdw)
 
 add_executable(test_dataset2_scale
-  ${CMAKE_SOURCE_DIR}/../../tests/advanced/test_dataset2_scale.cc
-  ${CMAKE_SOURCE_DIR}/../../src/wumpus_model.cc
+  ${WUMPUS_ROOT}/tests/advanced/test_dataset2_scale.cc
+  ${WUMPUS_ROOT}/src/wumpus_model.cc
 )
-target_include_directories(test_dataset2_scale PRIVATE ${CMAKE_SOURCE_DIR}/../../src)
+target_include_directories(test_dataset2_scale PRIVATE ${WUMPUS_ROOT}/src)
 target_link_libraries(test_dataset2_scale emdw)
