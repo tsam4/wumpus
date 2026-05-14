@@ -29,6 +29,10 @@
 #   All .txt trajectory files, .gif animations, and err.txt are written
 #   to results/, which is gitignored and created automatically at runtime.
 #
+# Note on err.txt: emdw writes err.txt relative to its working directory.
+#   All run targets cd into results/ before invoking the binary so that
+#   err.txt lands there rather than in the project root.
+#
 # ============================================================================
 
 # Configuration
@@ -130,7 +134,8 @@ test-all: test test-advanced
 # Demo Target
 # ============================================================================
 
-# Helper macro: run one dataset and print confirmation + trajectory preview
+# Helper macro: run one dataset and print confirmation + trajectory preview.
+# Runs from RESULTS_DIR so emdw's hardcoded err.txt write lands there.
 # Preview format matches compute_accuracy.py: [(x, y), (x, y), ...]
 # Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
 define demo_run
@@ -142,7 +147,7 @@ define demo_run
 		echo "$(RED)  ✗ Dataset dir not found: $(3)$(NC)"; exit 1; \
 	fi
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(3) $(1) $(4) 2>$(RESULTS_DIR)/err.txt; \
+	cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(3) $(1) $(4); \
 	status=$$?; \
 	duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then \
@@ -170,6 +175,7 @@ demo: build
 
 # ============================================================================
 # Run Targets (Execute Datasets)
+# Runs from RESULTS_DIR so emdw's hardcoded err.txt write lands there.
 # ============================================================================
 
 .PHONY: run
@@ -178,11 +184,11 @@ run: build
 	@echo "Running datasets 1-3..."
 	@start=$$(date +%s); \
 	echo "  Dataset 1: 5x5, 10 steps"; \
-	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>$(RESULTS_DIR)/err.txt && echo "    done" || echo "    FAILED"; \
+	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null) && echo "    done" || echo "    FAILED"; \
 	echo "  Dataset 2: 20x20, 20 steps"; \
-	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>>$(RESULTS_DIR)/err.txt && echo "    done" || echo "    FAILED"; \
+	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null) && echo "    done" || echo "    FAILED"; \
 	echo "  Dataset 3: 10x20, 20 steps"; \
-	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>>$(RESULTS_DIR)/err.txt && echo "    done" || echo "    FAILED"; \
+	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null) && echo "    done" || echo "    FAILED"; \
 	total=$$(( $$(date +%s) - start )); \
 	echo "$(GREEN)✓ All datasets complete in $${total}s$(NC)"
 
@@ -191,7 +197,7 @@ run-d1: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 1: 5x5, 10 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>$(RESULTS_DIR)/err.txt; \
+	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null); \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
@@ -201,7 +207,7 @@ run-d2: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 2: 20x20, 20 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>$(RESULTS_DIR)/err.txt; \
+	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null); \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
@@ -211,7 +217,7 @@ run-d3: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 3: 10x20, 20 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>$(RESULTS_DIR)/err.txt; \
+	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null); \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
@@ -225,7 +231,7 @@ run-d3: build
 flag-d1: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D1]$(NC) Flag-based Dataset1 with visualizer"
-	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>$(RESULTS_DIR)/err.txt
+	@cd $(RESULTS_DIR) && time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
 	@if [ -f "$(OUT_D1)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 1; \
@@ -236,7 +242,7 @@ flag-d1: build
 flag-d2: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D2]$(NC) Flag-based Dataset2 with visualizer"
-	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>$(RESULTS_DIR)/err.txt
+	@cd $(RESULTS_DIR) && time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
 	@if [ -f "$(OUT_D2)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 2; \
@@ -247,7 +253,7 @@ flag-d2: build
 flag-d3: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D3]$(NC) Flag-based Dataset3 with visualizer"
-	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>$(RESULTS_DIR)/err.txt
+	@cd $(RESULTS_DIR) && time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
 	@if [ -f "$(OUT_D3)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 3; \
