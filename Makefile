@@ -10,8 +10,7 @@
 #   make run                Run all datasets and generate outputs
 #   make demo               Quick demo: build + run all 3 datasets with verbose output
 #   make accuracy           Compute accuracy vs ground truth (all datasets with ground truth)
-#   make summary            Show a brief run summary
-#   make all                Full pipeline: build + test + run + accuracy + summary
+#   make all                Full pipeline: build + test + run + accuracy
 #   make clean              Remove generated output files (results/)
 #
 #   Flag-Based Targets (use ACTIVE_DATASET flag in src/wumpus.cc):
@@ -27,8 +26,8 @@
 #   DATASET_DIR: Path to datasets (auto-detected)
 #
 # Outputs:
-#   All .txt trajectory files and .gif animations are written to results/
-#   which is gitignored and created automatically at runtime.
+#   All .txt trajectory files, .gif animations, and err.txt are written
+#   to results/, which is gitignored and created automatically at runtime.
 #
 # ============================================================================
 
@@ -44,10 +43,10 @@ VISUALIZER  := $(PROJECT_DIR)/scripts/visualize.py
 ACCURACY_SCRIPT := $(PROJECT_DIR)/scripts/compute_accuracy.py
 
 # Ground truth directory pattern: "Ground truth for dataset<N>-*"
-# Each dataset may or may not have one — accuracy target discovers them at runtime.
+# Each dataset may or may not have one -- accuracy target discovers them at runtime.
 GT_BASE := $(PROJECT_DIR)
 
-# Output file prefixes — all outputs land in results/
+# Output file prefixes -- all outputs land in results/
 OUT_D1 := $(RESULTS_DIR)/out_d1
 OUT_D2 := $(RESULTS_DIR)/out_d2
 OUT_D3 := $(RESULTS_DIR)/out_d3
@@ -58,11 +57,11 @@ D2_DIR := $(DATASET_DIR)/dataset2
 D3_DIR := $(DATASET_DIR)/dataset3
 
 # ANSI color codes for output
-RED   := \033[0;31m
-GREEN := \033[0;32m
+RED    := \033[0;31m
+GREEN  := \033[0;32m
 YELLOW := \033[1;33m
-CYAN  := \033[0;36m
-NC    := \033[0m  # No Color
+CYAN   := \033[0;36m
+NC     := \033[0m  # No Color
 
 # ============================================================================
 # Default target
@@ -78,8 +77,7 @@ help:
 	@echo "  run            Execute datasets 1-3"
 	@echo "  demo           Quick demo: build + run all 3 datasets with verbose output"
 	@echo "  accuracy       Check accuracy vs ground truth for all available datasets"
-	@echo "  summary        Show run summary"
-	@echo "  all            Full pipeline: build, test, run, accuracy, summary"
+	@echo "  all            Full pipeline: build, test, run, accuracy"
 	@echo "  clean          Remove generated files in results/"
 	@echo ""
 	@echo "Additional targets: run-d1 run-d2 run-d3 visualize-d1 visualize-d2 visualize-d3"
@@ -133,6 +131,7 @@ test-all: test test-advanced
 # ============================================================================
 
 # Helper macro: run one dataset and print confirmation + trajectory preview
+# Preview format matches compute_accuracy.py: [(x, y), (x, y), ...]
 # Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
 define demo_run
 	@mkdir -p $(RESULTS_DIR)
@@ -143,11 +142,11 @@ define demo_run
 		echo "$(RED)  ✗ Dataset dir not found: $(3)$(NC)"; exit 1; \
 	fi
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(3) $(1) $(4) 2>&1; \
+	$(WUMPUS_BIN) $(3) $(1) $(4) 2>$(RESULTS_DIR)/err.txt; \
 	status=$$?; \
 	duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then \
-		echo "$(RED)  ✗ wumpus exited with status $$status$(NC)"; exit $$status; \
+		echo "$(RED)  ✗ wumpus exited with status $$status (see results/err.txt)$(NC)"; exit $$status; \
 	fi; \
 	out="$(4)_marginal.txt"; \
 	if [ ! -f "$$out" ]; then \
@@ -155,8 +154,10 @@ define demo_run
 	fi; \
 	lines=$$(wc -l < "$$out" | tr -d ' '); \
 	echo "$(GREEN)  ✓ done in $${duration}s — $${lines} timesteps written to $$(basename $$out)$(NC)"; \
-	echo "  First 3:  $$(head -3 $$out | tr '\n' ' ')"; \
-	echo "  Last 3:   $$(tail -3 $$out | tr '\n' ' ')";
+	first5=$$(head -5 "$$out" | awk '{printf "(" $$1 ", " $$2 ")"}' | sed 's/)(/, /g; s/^/[/; s/$$/]/'); \
+	last5=$$(tail -5  "$$out" | awk '{printf "(" $$1 ", " $$2 ")"}' | sed 's/)(/, /g; s/^/[/; s/$$/]/'); \
+	echo "  First 5: $$first5"; \
+	echo "  Last 5:  $$last5";
 endef
 
 .PHONY: demo
@@ -177,11 +178,11 @@ run: build
 	@echo "Running datasets 1-3..."
 	@start=$$(date +%s); \
 	echo "  Dataset 1: 5x5, 10 steps"; \
-	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null 2>&1 && echo "    done" || echo "    FAILED"; \
+	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>$(RESULTS_DIR)/err.txt && echo "    done" || echo "    FAILED"; \
 	echo "  Dataset 2: 20x20, 20 steps"; \
-	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null 2>&1 && echo "    done" || echo "    FAILED"; \
+	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>>$(RESULTS_DIR)/err.txt && echo "    done" || echo "    FAILED"; \
 	echo "  Dataset 3: 10x20, 20 steps"; \
-	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null 2>&1 && echo "    done" || echo "    FAILED"; \
+	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>>$(RESULTS_DIR)/err.txt && echo "    done" || echo "    FAILED"; \
 	total=$$(( $$(date +%s) - start )); \
 	echo "$(GREEN)✓ All datasets complete in $${total}s$(NC)"
 
@@ -190,9 +191,9 @@ run-d1: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 1: 5x5, 10 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null 2>&1; \
+	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>$(RESULTS_DIR)/err.txt; \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
-	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
+	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 .PHONY: run-d2
@@ -200,9 +201,9 @@ run-d2: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 2: 20x20, 20 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null 2>&1; \
+	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>$(RESULTS_DIR)/err.txt; \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
-	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
+	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 .PHONY: run-d3
@@ -210,9 +211,9 @@ run-d3: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 3: 10x20, 20 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null 2>&1; \
+	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>$(RESULTS_DIR)/err.txt; \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
-	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
+	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 # ============================================================================
@@ -224,7 +225,7 @@ run-d3: build
 flag-d1: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D1]$(NC) Flag-based Dataset1 with visualizer"
-	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>&1
+	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>$(RESULTS_DIR)/err.txt
 	@if [ -f "$(OUT_D1)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 1; \
@@ -235,7 +236,7 @@ flag-d1: build
 flag-d2: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D2]$(NC) Flag-based Dataset2 with visualizer"
-	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>&1
+	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>$(RESULTS_DIR)/err.txt
 	@if [ -f "$(OUT_D2)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 2; \
@@ -246,7 +247,7 @@ flag-d2: build
 flag-d3: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D3]$(NC) Flag-based Dataset3 with visualizer"
-	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>&1
+	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>$(RESULTS_DIR)/err.txt
 	@if [ -f "$(OUT_D3)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 3; \
@@ -307,27 +308,11 @@ accuracy:
 	@echo "$(GREEN)✓ Accuracy check complete$(NC)"
 
 # ============================================================================
-# Summary Target
-# ============================================================================
-
-.PHONY: summary
-summary:
-	@echo "Run summary:"
-	@echo "  datasets run: 3"
-	@echo "  marginal outputs: $$(find $(RESULTS_DIR) -maxdepth 1 -name 'out_d*_marginal.txt' 2>/dev/null | wc -l | tr -d ' ')"
-	@for n in 1 2 3; do \
-		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
-		if [ -n "$$gt_dir" ] && [ -f "$$gt_dir/wumpus_trajectory.txt" ]; then \
-			echo "  ground truth available: dataset $$n"; \
-		fi; \
-	done
-
-# ============================================================================
 # Combined Targets
 # ============================================================================
 
 .PHONY: all
-all: build test-all run accuracy summary
+all: build test-all run accuracy
 	@echo ""
 	@echo "$(GREEN)✓✓✓ COMPLETE PIPELINE FINISHED ✓✓✓$(NC)"
 	@echo ""
