@@ -8,8 +8,8 @@
 #   make test-advanced      Run advanced integration tests
 #   make test-all           Run all tests (basic + advanced)
 #   make run                Run all datasets and generate outputs
-#   make demo               Quick demo: build + run dataset1 with verbose output
-#   make accuracy           Compute accuracy vs ground truth (dataset1 only)
+#   make demo               Quick demo: build + run all 3 datasets with verbose output
+#   make accuracy           Compute accuracy vs ground truth (all datasets with ground truth)
 #   make summary            Generate comprehensive summary report
 #   make all                Full pipeline: build + test + run + accuracy + summary
 #   make clean              Clean build artifacts and outputs
@@ -25,7 +25,6 @@
 #   WUMPUS_BIN:  Path to wumpus executable
 #   PROJECT_DIR: Path to this project (auto-detected)
 #   DATASET_DIR: Path to datasets (auto-detected)
-#   GROUND_TRUTH: Path to ground truth trajectory (auto-detected)
 #
 # ============================================================================
 
@@ -33,11 +32,15 @@
 PROJECT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 EMDW_BUILD  ?= $(PROJECT_DIR)/emdw_de424/devel/emdw/build
 DATASET_DIR := $(PROJECT_DIR)/Datasets-20260506
-GROUND_TRUTH := $(PROJECT_DIR)/Ground truth for dataset1-20260506/wumpus_trajectory.txt
 WUMPUS_BIN := $(EMDW_BUILD)/src/bin/wumpus
 WUMPUS_TEST_DIR := $(EMDW_BUILD)/src/bin
 PYTHON := $(if $(wildcard $(PROJECT_DIR)/.venv/bin/python),$(PROJECT_DIR)/.venv/bin/python,python3)
 VISUALIZER := $(PROJECT_DIR)/scripts/visualize.py
+ACCURACY_SCRIPT := $(PROJECT_DIR)/scripts/compute_accuracy.py
+
+# Ground truth directory pattern: "Ground truth for dataset<N>-*"
+# Each dataset may or may not have one — accuracy target discovers them at runtime.
+GT_BASE := $(PROJECT_DIR)
 
 # Output file prefixes (datasets 1-3 only)
 OUT_D1 := $(PROJECT_DIR)/out_d1
@@ -76,8 +79,8 @@ help:
 	@echo "  test-advanced  Run advanced integration tests"
 	@echo "  test-all       Run all tests"
 	@echo "  run            Execute datasets 1-3"
-	@echo "  demo           Quick demo: build + run dataset1 with verbose output"
-	@echo "  accuracy       Check Dataset1 against ground truth"
+	@echo "  demo           Quick demo: build + run all 3 datasets with verbose output"
+	@echo "  accuracy       Check accuracy vs ground truth for all available datasets"
 	@echo "  summary        Show run summary"
 	@echo "  all            Full pipeline: build, test, run, accuracy, summary"
 	@echo "  clean          Remove generated files"
@@ -262,15 +265,38 @@ visualize-d3:
 # ============================================================================
 
 .PHONY: accuracy
-accuracy: run-d1 compute-accuracy
-
-.PHONY: compute-accuracy
-compute-accuracy:
-	@echo "Checking Dataset1 accuracy against ground truth..."
-	@if [ ! -f "$(GROUND_TRUTH)" ]; then \
-		echo "Ground truth not found: $(GROUND_TRUTH)"; exit 1; \
+accuracy:
+	@echo ""
+	@echo "$(CYAN)Checking accuracy for all datasets with available ground truth...$(NC)"
+	@found=0; \
+	for n in 1 2 3; do \
+		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
+		if [ -n "$$gt_dir" ]; then \
+			gt_file="$$gt_dir/wumpus_trajectory.txt"; \
+			out_file="$(PROJECT_DIR)/out_d$$n_marginal.txt"; \
+			if [ ! -f "$$gt_file" ]; then \
+				echo "$(YELLOW)  [Dataset $$n] Ground truth dir found but wumpus_trajectory.txt missing — skipping$(NC)"; \
+				continue; \
+			fi; \
+			if [ ! -f "$$out_file" ]; then \
+				echo "$(YELLOW)  [Dataset $$n] Output not found ($$out_file) — run 'make run-d$$n' first$(NC)"; \
+				continue; \
+			fi; \
+			echo ""; \
+			echo "$(YELLOW)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"; \
+			echo "$(YELLOW)  Dataset $$n — $$gt_dir$(NC)"; \
+			echo "$(YELLOW)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"; \
+			$(PYTHON) "$(ACCURACY_SCRIPT)" "$$gt_file" "$$out_file"; \
+			found=$$((found+1)); \
+		fi; \
+	done; \
+	if [ $$found -eq 0 ]; then \
+		echo "$(RED)No ground truth directories found in $(GT_BASE)$(NC)"; \
+		echo "Expected directories named: 'Ground truth for dataset<N>-*'"; \
+		exit 1; \
 	fi
-	@python3 "$(PROJECT_DIR)/scripts/compute_accuracy.py" "$(GROUND_TRUTH)" "$(OUT_D1)_marginal.txt"
+	@echo ""
+	@echo "$(GREEN)✓ Accuracy check complete$(NC)"
 
 # ============================================================================
 # Summary Targets (Generate Reports)
@@ -282,11 +308,12 @@ summary:
 	@echo "  datasets run: 3"
 	@echo "  marginal outputs: $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_marginal.txt' | wc -l)"
 	@echo "  MAP outputs:      $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_map.txt' | wc -l)"
-	@if [ -f "$(GROUND_TRUTH)" ]; then \
-		echo "  ground truth available"; \
-	else \
-		echo "  ground truth not found"; \
-	fi
+	@for n in 1 2 3; do \
+		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
+		if [ -n "$$gt_dir" ] && [ -f "$$gt_dir/wumpus_trajectory.txt" ]; then \
+			echo "  ground truth available: dataset $$n"; \
+		fi; \
+	done
 
 .PHONY: run-all-check
 run-all-check:
@@ -333,7 +360,6 @@ info:
 	@echo "EMDW Build Dir:    $(EMDW_BUILD)"
 	@echo "Wumpus Binary:     $(WUMPUS_BIN)"
 	@echo "Dataset Directory: $(DATASET_DIR)"
-	@echo "Ground Truth:      $(GROUND_TRUTH)"
 	@echo ""
 	@echo "$(YELLOW)Dataset Locations:$(NC)"
 	@echo "  D1: $(D1_DIR)"
@@ -345,6 +371,16 @@ info:
 	@echo "  D2: $(OUT_D2)"
 	@echo "  D3: $(OUT_D3)"
 	@echo ""
+	@echo "$(YELLOW)Ground Truth Availability:$(NC)"
+	@for n in 1 2 3; do \
+		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
+		if [ -n "$$gt_dir" ] && [ -f "$$gt_dir/wumpus_trajectory.txt" ]; then \
+			echo "  $(GREEN)✓ Dataset $$n: $$gt_dir$(NC)"; \
+		else \
+			echo "  $(RED)✗ Dataset $$n: not found$(NC)"; \
+		fi; \
+	done
+	@echo ""
 	@if [ -f $(WUMPUS_BIN) ]; then \
 		echo "$(GREEN)✓ Wumpus executable found$(NC)"; \
 	else \
@@ -354,11 +390,6 @@ info:
 		echo "$(GREEN)✓ Dataset directory found$(NC)"; \
 	else \
 		echo "$(RED)✗ Dataset directory NOT found$(NC)"; \
-	fi
-	@if [ -f "$(GROUND_TRUTH)" ]; then \
-		echo "$(GREEN)✓ Ground truth file found$(NC)"; \
-	else \
-		echo "$(RED)✗ Ground truth file NOT found$(NC)"; \
 	fi
 
 # ============================================================================
