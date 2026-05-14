@@ -176,54 +176,52 @@ demo: build
 .PHONY: run
 run: build
 	@echo "Running datasets 1-3..."
-	@bash -c 'start=$$(date +%s); echo "Dataset1: 5×5, 10 steps"; start1=$$(date +%s); "$(WUMPUS_BIN)" "$(D1_DIR)" 1 "$(OUT_D1)" >/dev/null 2>&1; duration1=$$(( $$(date +%s) - start1)); echo "  done in $$duration1 sec"; echo "Dataset2: 20×20, 20 steps"; start2=$$(date +%s); "$(WUMPUS_BIN)" "$(D2_DIR)" 2 "$(OUT_D2)" >/dev/null 2>&1; duration2=$$(( $$(date +%s) - start2)); echo "  done in $$duration2 sec"; echo "Dataset3: 10×20, 20 steps"; start3=$$(date +%s); "$(WUMPUS_BIN)" "$(D3_DIR)" 3 "$(OUT_D3)" >/dev/null 2>&1; duration3=$$(( $$(date +%s) - start3)); echo "  done in $$duration3 sec"; end=$$(date +%s); total=$$((end-start)); marginals=$$(find "$(PROJECT_DIR)" -maxdepth 1 -name "out_d*_marginal.txt" | wc -l | tr -d " "); maps=$$(find "$(PROJECT_DIR)" -maxdepth 1 -name "out_d*_map.txt" | wc -l | tr -d " "); echo "Completed 3 datasets in $$total sec."; echo "Generated $$marginals marginal files and $$maps MAP files."'
-	@echo "Visualizing dataset outputs..."
-	@cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 1 || true
-	@cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 2 || true
-	@cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 3 || true
+	@start=$$(date +%s); \
+	echo "  Dataset 1: 5x5, 10 steps"; \
+	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null 2>&1 && echo "    done" || echo "    FAILED"; \
+	echo "  Dataset 2: 20x20, 20 steps"; \
+	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null 2>&1 && echo "    done" || echo "    FAILED"; \
+	echo "  Dataset 3: 10x20, 20 steps"; \
+	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null 2>&1 && echo "    done" || echo "    FAILED"; \
+	total=$$(( $$(date +%s) - start )); \
+	echo "$(GREEN)✓ All datasets complete in $${total}s$(NC)"
 
 .PHONY: run-d1
 run-d1: build
-	@echo "Dataset1: 5×5, 10 steps"
+	@echo "Dataset 1: 5x5, 10 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) > /dev/null 2>&1; \
-	status=$$?; \
-	duration=$$(( $$(date +%s) - start )); \
+	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null 2>&1; \
+	status=$$?; duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
-	echo "  done in $$duration sec"
+	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 .PHONY: run-d2
 run-d2: build
-	@echo "Dataset2: 20×20, 20 steps"
+	@echo "Dataset 2: 20x20, 20 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) > /dev/null 2>&1; \
-	status=$$?; \
-	duration=$$(( $$(date +%s) - start )); \
+	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null 2>&1; \
+	status=$$?; duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
-	echo "  done in $$duration sec"
+	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 .PHONY: run-d3
 run-d3: build
-	@echo "Dataset3: 10×20, 20 steps"
+	@echo "Dataset 3: 10x20, 20 steps"
 	@start=$$(date +%s); \
-	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) > /dev/null 2>&1; \
-	status=$$?; \
-	duration=$$(( $$(date +%s) - start )); \
+	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null 2>&1; \
+	status=$$?; duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
-	echo "  done in $$duration sec"
+	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 # ============================================================================
 # Flag-Based Targets (use ACTIVE_DATASET flag and run visualizer)
 # ============================================================================
 
-
 .PHONY: flag-d1 flag-d2 flag-d3
 
 flag-d1: build
-	@echo ""
 	@echo "$(CYAN)[FLAG-D1]$(NC) Flag-based Dataset1 with visualizer"
 	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>&1
-	@echo ""
 	@if [ -f "$(OUT_D1)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 1; \
@@ -232,10 +230,8 @@ flag-d1: build
 	fi
 
 flag-d2: build
-	@echo ""
 	@echo "$(CYAN)[FLAG-D2]$(NC) Flag-based Dataset2 with visualizer"
 	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>&1
-	@echo ""
 	@if [ -f "$(OUT_D2)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 2; \
@@ -244,10 +240,8 @@ flag-d2: build
 	fi
 
 flag-d3: build
-	@echo ""
 	@echo "$(CYAN)[FLAG-D3]$(NC) Flag-based Dataset3 with visualizer"
 	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>&1
-	@echo ""
 	@if [ -f "$(OUT_D3)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
 		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 3; \
@@ -270,40 +264,40 @@ visualize-d3:
 	@cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 3
 
 # ============================================================================
-# Accuracy Targets (Compare with Ground Truth)
+# Accuracy Target (Compare with Ground Truth)
+#
+# Uses explicit Make variables (OUT_D1/2/3) instead of shell loop variables
+# to avoid the Make double-dollar expansion trap where $$n collapses to empty.
 # ============================================================================
+
+# Internal macro: check one dataset against its ground truth
+# Usage: $(call check_accuracy, N, OUT_PREFIX)
+define check_accuracy
+	@gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$(1)-*" 2>/dev/null | head -1); \
+	if [ -z "$$gt_dir" ]; then \
+		echo "  Dataset $(1): no ground truth directory found — skipping"; \
+	else \
+		gt_file="$$gt_dir/wumpus_trajectory.txt"; \
+		out_file="$(2)_marginal.txt"; \
+		if [ ! -f "$$gt_file" ]; then \
+			echo "$(YELLOW)  Dataset $(1): ground truth dir found but wumpus_trajectory.txt missing — skipping$(NC)"; \
+		elif [ ! -f "$$out_file" ]; then \
+			echo "$(YELLOW)  Dataset $(1): output not found ($$out_file) — run 'make run-d$(1)' first$(NC)"; \
+		else \
+			echo ""; \
+			echo "Dataset $(1) — $$gt_dir"; \
+			$(PYTHON) "$(ACCURACY_SCRIPT)" "$$gt_file" "$$out_file"; \
+		fi; \
+	fi
+endef
 
 .PHONY: accuracy
 accuracy:
 	@echo ""
-	@echo "$(CYAN)Checking accuracy for all datasets with available ground truth...$(NC)"
-	@found=0; \
-	for n in 1 2 3; do \
-		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
-		if [ -n "$$gt_dir" ]; then \
-			gt_file="$$gt_dir/wumpus_trajectory.txt"; \
-			out_file="$(PROJECT_DIR)/out_d$$n_marginal.txt"; \
-			if [ ! -f "$$gt_file" ]; then \
-				echo "$(YELLOW)  [Dataset $$n] Ground truth dir found but wumpus_trajectory.txt missing — skipping$(NC)"; \
-				continue; \
-			fi; \
-			if [ ! -f "$$out_file" ]; then \
-				echo "$(YELLOW)  [Dataset $$n] Output not found ($$out_file) — run 'make run-d$$n' first$(NC)"; \
-				continue; \
-			fi; \
-			echo ""; \
-			echo "$(YELLOW)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"; \
-			echo "$(YELLOW)  Dataset $$n — $$gt_dir$(NC)"; \
-			echo "$(YELLOW)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"; \
-			$(PYTHON) "$(ACCURACY_SCRIPT)" "$$gt_file" "$$out_file"; \
-			found=$$((found+1)); \
-		fi; \
-	done; \
-	if [ $$found -eq 0 ]; then \
-		echo "$(RED)No ground truth directories found in $(GT_BASE)$(NC)"; \
-		echo "Expected directories named: 'Ground truth for dataset<N>-*'"; \
-		exit 1; \
-	fi
+	@echo "Checking accuracy for all datasets with available ground truth..."
+	$(call check_accuracy,1,$(OUT_D1))
+	$(call check_accuracy,2,$(OUT_D2))
+	$(call check_accuracy,3,$(OUT_D3))
 	@echo ""
 	@echo "$(GREEN)✓ Accuracy check complete$(NC)"
 
@@ -315,20 +309,14 @@ accuracy:
 summary:
 	@echo "Run summary:"
 	@echo "  datasets run: 3"
-	@echo "  marginal outputs: $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_marginal.txt' | wc -l)"
-	@echo "  MAP outputs:      $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_map.txt' | wc -l)"
+	@echo "  marginal outputs: $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_marginal.txt' | wc -l | tr -d ' ')"
+	@echo "  MAP outputs:      $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_map.txt' | wc -l | tr -d ' ')"
 	@for n in 1 2 3; do \
 		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
 		if [ -n "$$gt_dir" ] && [ -f "$$gt_dir/wumpus_trajectory.txt" ]; then \
 			echo "  ground truth available: dataset $$n"; \
 		fi; \
 	done
-
-.PHONY: run-all-check
-run-all-check:
-	@if [ ! -f "$(OUT_D1)_map.txt" ] || [ ! -f "$(OUT_D2)_map.txt" ]; then \
-		$(MAKE) run; \
-	fi
 
 # ============================================================================
 # Combined Targets
@@ -346,15 +334,16 @@ all: build test-all run accuracy summary
 
 .PHONY: clean
 clean:
-	@echo "$(CYAN)[CLEAN]$(NC) Removing output files..."
+	@echo "Removing output files..."
 	@rm -f $(OUT_D1)_*.txt $(OUT_D2)_*.txt $(OUT_D3)_*.txt
 	@rm -f $(PROJECT_DIR)/RESULTS_*.log $(PROJECT_DIR)/FINAL_SUMMARY.txt
 	@echo "$(GREEN)✓ Clean complete$(NC)"
 
 .PHONY: clean-build
 clean-build:
-	@echo "$(CYAN)[CLEAN BUILD]$(NC) Removing emdw build artifacts..."
-	@cd $(EMDW_BUILD) && rm -rf CMakeFiles cmake_install.cmake CMakeCache.txt Makefile
+	@echo "Removing emdw build artifacts..."
+	@rm -rf $(EMDW_BUILD)/CMakeFiles $(EMDW_BUILD)/cmake_install.cmake \
+	         $(EMDW_BUILD)/CMakeCache.txt $(EMDW_BUILD)/Makefile
 	@echo "$(GREEN)✓ Build clean complete$(NC)"
 
 # ============================================================================
@@ -363,37 +352,25 @@ clean-build:
 
 .PHONY: info
 info:
-	@echo "$(CYAN)[INFO]$(NC) System Information"
-	@echo "$(YELLOW)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 	@echo "Project Directory: $(PROJECT_DIR)"
 	@echo "EMDW Build Dir:    $(EMDW_BUILD)"
 	@echo "Wumpus Binary:     $(WUMPUS_BIN)"
 	@echo "Dataset Directory: $(DATASET_DIR)"
 	@echo ""
-	@echo "$(YELLOW)Dataset Locations:$(NC)"
+	@echo "Dataset locations:"
 	@echo "  D1: $(D1_DIR)"
 	@echo "  D2: $(D2_DIR)"
 	@echo "  D3: $(D3_DIR)"
 	@echo ""
-	@echo "$(YELLOW)Output File Prefixes:$(NC)"
+	@echo "Output prefixes:"
 	@echo "  D1: $(OUT_D1)"
 	@echo "  D2: $(OUT_D2)"
 	@echo "  D3: $(OUT_D3)"
 	@echo ""
-	@echo "$(YELLOW)Ground Truth Availability:$(NC)"
-	@for n in 1 2 3; do \
-		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
-		if [ -n "$$gt_dir" ] && [ -f "$$gt_dir/wumpus_trajectory.txt" ]; then \
-			echo "  $(GREEN)✓ Dataset $$n: $$gt_dir$(NC)"; \
-		else \
-			echo "  $(RED)✗ Dataset $$n: not found$(NC)"; \
-		fi; \
-	done
-	@echo ""
 	@if [ -f $(WUMPUS_BIN) ]; then \
-		echo "$(GREEN)✓ Wumpus executable found$(NC)"; \
+		echo "$(GREEN)✓ Wumpus binary found$(NC)"; \
 	else \
-		echo "$(RED)✗ Wumpus executable NOT found$(NC)"; \
+		echo "$(RED)✗ Wumpus binary NOT found$(NC)"; \
 	fi
 	@if [ -d $(DATASET_DIR) ]; then \
 		echo "$(GREEN)✓ Dataset directory found$(NC)"; \
@@ -402,7 +379,7 @@ info:
 	fi
 
 # ============================================================================
-# Phony targets (non-file targets)
+# Phony targets
 # ============================================================================
 .PHONY: .FORCE
 .FORCE:
