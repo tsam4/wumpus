@@ -11,7 +11,7 @@
 #   make demo               Quick demo: build + run all 3 datasets with verbose output
 #   make accuracy           Compute accuracy vs ground truth (all datasets with ground truth)
 #   make all                Full pipeline: build + test + run + accuracy
-#   make clean              Remove generated output files (results/)
+#   make clean              Remove generated output files (results/ + emdw runtime artifacts)
 #
 #   Flag-Based Targets (use ACTIVE_DATASET flag in src/wumpus.cc):
 #   make flag-d1            Compile with ACTIVE_DATASET=1, run, visualize
@@ -26,12 +26,9 @@
 #   DATASET_DIR: Path to datasets (auto-detected)
 #
 # Outputs:
-#   All .txt trajectory files, .gif animations, and err.txt are written
-#   to results/, which is gitignored and created automatically at runtime.
-#
-# Note on err.txt: emdw writes err.txt relative to its working directory.
-#   All run targets cd into results/ before invoking the binary so that
-#   err.txt lands there rather than in the project root.
+#   All .txt trajectory files and .gif animations are written to results/.
+#   err.txt and emdw_RandomEngine_seedVal.txt are written by emdw to the
+#   project root (hardcoded in emdw source); make clean removes them.
 #
 # ============================================================================
 
@@ -47,7 +44,6 @@ VISUALIZER  := $(PROJECT_DIR)/scripts/visualize.py
 ACCURACY_SCRIPT := $(PROJECT_DIR)/scripts/compute_accuracy.py
 
 # Ground truth directory pattern: "Ground truth for dataset<N>-*"
-# Each dataset may or may not have one -- accuracy target discovers them at runtime.
 GT_BASE := $(PROJECT_DIR)
 
 # Output file prefixes -- all outputs land in results/
@@ -82,7 +78,7 @@ help:
 	@echo "  demo           Quick demo: build + run all 3 datasets with verbose output"
 	@echo "  accuracy       Check accuracy vs ground truth for all available datasets"
 	@echo "  all            Full pipeline: build, test, run, accuracy"
-	@echo "  clean          Remove generated files in results/"
+	@echo "  clean          Remove generated files (results/ + emdw runtime artifacts)"
 	@echo ""
 	@echo "Additional targets: run-d1 run-d2 run-d3 visualize-d1 visualize-d2 visualize-d3"
 	@echo ""
@@ -135,7 +131,6 @@ test-all: test test-advanced
 # ============================================================================
 
 # Helper macro: run one dataset and print confirmation + trajectory preview.
-# Runs from RESULTS_DIR so emdw's hardcoded err.txt write lands there.
 # Preview format matches compute_accuracy.py: [(x, y), (x, y), ...]
 # Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
 define demo_run
@@ -147,11 +142,11 @@ define demo_run
 		echo "$(RED)  ✗ Dataset dir not found: $(3)$(NC)"; exit 1; \
 	fi
 	@start=$$(date +%s); \
-	cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(3) $(1) $(4); \
+	$(WUMPUS_BIN) $(3) $(1) $(4); \
 	status=$$?; \
 	duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then \
-		echo "$(RED)  ✗ wumpus exited with status $$status (see results/err.txt)$(NC)"; exit $$status; \
+		echo "$(RED)  ✗ wumpus exited with status $$status$(NC)"; exit $$status; \
 	fi; \
 	out="$(4)_marginal.txt"; \
 	if [ ! -f "$$out" ]; then \
@@ -175,7 +170,6 @@ demo: build
 
 # ============================================================================
 # Run Targets (Execute Datasets)
-# Runs from RESULTS_DIR so emdw's hardcoded err.txt write lands there.
 # ============================================================================
 
 .PHONY: run
@@ -184,11 +178,11 @@ run: build
 	@echo "Running datasets 1-3..."
 	@start=$$(date +%s); \
 	echo "  Dataset 1: 5x5, 10 steps"; \
-	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null) && echo "    done" || echo "    FAILED"; \
+	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null && echo "    done" || echo "    FAILED"; \
 	echo "  Dataset 2: 20x20, 20 steps"; \
-	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null) && echo "    done" || echo "    FAILED"; \
+	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null && echo "    done" || echo "    FAILED"; \
 	echo "  Dataset 3: 10x20, 20 steps"; \
-	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null) && echo "    done" || echo "    FAILED"; \
+	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null && echo "    done" || echo "    FAILED"; \
 	total=$$(( $$(date +%s) - start )); \
 	echo "$(GREEN)✓ All datasets complete in $${total}s$(NC)"
 
@@ -197,9 +191,9 @@ run-d1: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 1: 5x5, 10 steps"
 	@start=$$(date +%s); \
-	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null); \
+	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null; \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
-	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
+	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 .PHONY: run-d2
@@ -207,9 +201,9 @@ run-d2: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 2: 20x20, 20 steps"
 	@start=$$(date +%s); \
-	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null); \
+	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null; \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
-	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
+	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 .PHONY: run-d3
@@ -217,9 +211,9 @@ run-d3: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 3: 10x20, 20 steps"
 	@start=$$(date +%s); \
-	(cd $(RESULTS_DIR) && $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null); \
+	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null; \
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
-	if [ $$status -ne 0 ]; then echo "  FAILED (see results/err.txt)"; exit $$status; fi; \
+	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 # ============================================================================
@@ -231,10 +225,10 @@ run-d3: build
 flag-d1: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D1]$(NC) Flag-based Dataset1 with visualizer"
-	@cd $(RESULTS_DIR) && time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
+	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
 	@if [ -f "$(OUT_D1)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
-		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 1; \
+		$(PYTHON) $(VISUALIZER) 1; \
 	else \
 		echo "$(RED)✗ Output files not found$(NC)"; \
 	fi
@@ -242,10 +236,10 @@ flag-d1: build
 flag-d2: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D2]$(NC) Flag-based Dataset2 with visualizer"
-	@cd $(RESULTS_DIR) && time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
+	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
 	@if [ -f "$(OUT_D2)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
-		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 2; \
+		$(PYTHON) $(VISUALIZER) 2; \
 	else \
 		echo "$(RED)✗ Output files not found$(NC)"; \
 	fi
@@ -253,10 +247,10 @@ flag-d2: build
 flag-d3: build
 	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D3]$(NC) Flag-based Dataset3 with visualizer"
-	@cd $(RESULTS_DIR) && time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
+	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
 	@if [ -f "$(OUT_D3)_marginal.txt" ]; then \
 		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
-		cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 3; \
+		$(PYTHON) $(VISUALIZER) 3; \
 	else \
 		echo "$(RED)✗ Output files not found$(NC)"; \
 	fi
@@ -265,21 +259,18 @@ flag-d3: build
 .PHONY: visualize-d1 visualize-d2 visualize-d3
 visualize-d1:
 	@echo "$(CYAN)[VISUALIZE-D1]$(NC)"
-	@cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 1
+	@$(PYTHON) $(VISUALIZER) 1
 
 visualize-d2:
 	@echo "$(CYAN)[VISUALIZE-D2]$(NC)"
-	@cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 2
+	@$(PYTHON) $(VISUALIZER) 2
 
 visualize-d3:
 	@echo "$(CYAN)[VISUALIZE-D3]$(NC)"
-	@cd $(PROJECT_DIR) && $(PYTHON) $(VISUALIZER) 3
+	@$(PYTHON) $(VISUALIZER) 3
 
 # ============================================================================
 # Accuracy Target (Compare with Ground Truth)
-#
-# Uses explicit Make variables (OUT_D1/2/3) instead of shell loop variables
-# to avoid the Make double-dollar expansion trap where $$n collapses to empty.
 # ============================================================================
 
 # Internal macro: check one dataset against its ground truth
@@ -329,8 +320,9 @@ all: build test-all run accuracy
 
 .PHONY: clean
 clean:
-	@echo "Removing results/..."
+	@echo "Removing results/ and emdw runtime artifacts..."
 	@rm -rf $(RESULTS_DIR)
+	@rm -f $(PROJECT_DIR)/err.txt $(PROJECT_DIR)/emdw_RandomEngine_seedVal.txt
 	@echo "$(GREEN)✓ Clean complete$(NC)"
 
 .PHONY: clean-build
