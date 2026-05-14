@@ -49,7 +49,7 @@ All outputs (`.txt` trajectories, `.gif` animations) are written to `results/`.
 ## Datasets
 
 | Dataset  | Grid  | Steps | pw   | pc   | Notes                          |
-|----------|-------|-------|------|------|--------------------------------|
+| -------- | ----- | ----- | ---- | ---- | ------------------------------ |
 | dataset1 | 5×5   | 10    | 0.95 | 0.05 | Known params                   |
 | dataset2 | 20×20 | 20    | 0.90 | 0.10 | Known params, larger grid      |
 | dataset3 | 10×20 | 20    | ?    | ?    | Unknown pw/pc — learned via EM |
@@ -117,17 +117,11 @@ make test
 
 Runs the four required tests. All should exit with code 0 and print `PASS`.
 
-| Test | What it checks |
-|---|---|
-| `test_parser` | detection file parsing and row-major ordering |
-| `test_emission` | emission factor correctness, log-space, clamping |
-| `test_transition` | transition matrix: self-loops, row sums, edge/corner cells |
-| `test_emdw_bp` | full BP integration on a 2×2 grid; marginals sum to 1, no NaN |
+| Test              | What it checks                                                |
+| ----------------- | ------------------------------------------------------------- |
+| `test_parser`     | detection file parsing and row-major ordering                 |
+| `test_emission`   | emission factor correctness, log-space, clamping              |
+| `test_transition` | transition matrix: self-loops, row sums, edge/corner cells    |
+| `test_emdw_bp`    | full BP integration on a 2×2 grid; marginals sum to 1, no NaN |
 
 ---
-
-## Implementation Notes
-
-- Emission likelihoods are computed in **log-space** then converted via the log-sum-exp trick before being passed to EMDW as factor potentials.
-- `clamp_prob(p)` keeps all values in $(10^{-6},\, 1-10^{-6})$ to prevent $\log(0)$ during EM.
-- Dataset files are sorted lexicographically to ensure correct temporal order.
