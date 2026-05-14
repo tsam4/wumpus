@@ -1,21 +1,14 @@
 #!/usr/bin/env python3
 """
-Wumpus Trajectory Visualizer
+visualizer for wumpus tracker output.
 
-Cell appearance:
-  Background fill  : light orange  -- sensor detected something in this cell
-  Green rectangle  : thick outline -- true wumpus location
-  Blue filled circle               -- marginal (BP) prediction
+cell appearance:
+  light orange fill  -- sensor detected something in this cell
+  green rectangle    -- true wumpus location (dataset 1 only)
+  blue filled circle -- marginal (BP) prediction
 
-All three can appear simultaneously on the same cell, making every
-combination unambiguous without needing extra legend colours.
-
-Always saves an animated GIF to out_d<N>_anim.gif.
-Interactive animation window is shown when matplotlib is available.
-
-Usage:
-    python visualize.py <dataset_id>
-where dataset_id is 1-3 (default: 1)
+usage: python visualize.py <dataset_id>   (default: 1)
+saves animated GIF to out_d<N>_anim.gif and opens interactive window.
 """
 
 import sys
@@ -47,20 +40,20 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------------
-# Visual constants
+# visual constants
 # ---------------------------------------------------------------------------
 _C_EMPTY        = "#f5f5f5"   # plain empty cell
-_C_DETECTION    = "#fde8c8"   # light orange fill  -- sensor triggered
+_C_DETECTION    = "#fde8c8"   # light orange -- sensor triggered
 _C_GRID         = "#c0c0c0"   # grid lines
-_C_PREDICTION   = "#2178c4"   # blue filled circle -- marginal prediction
-_C_TRUE_OUTLINE = "#27ae60"   # green box outline  -- true wumpus location
+_C_PREDICTION   = "#2178c4"   # blue circle -- marginal prediction
+_C_TRUE_OUTLINE = "#27ae60"   # green box -- true wumpus location
 
-_CIRCLE_RADIUS  = 0.33        # fraction of a cell (0..0.5)
-_OUTLINE_LW     = 3.5         # line-width for the green rectangle outline
+_CIRCLE_RADIUS  = 0.33        # fraction of cell width
+_OUTLINE_LW     = 3.5         # line width for green outline
 
 
 # ---------------------------------------------------------------------------
-# File I/O
+# file I/O
 # ---------------------------------------------------------------------------
 
 def load_grid_file(filepath):
@@ -94,6 +87,7 @@ def find_dataset_dir(dataset_id):
 
 
 def find_ground_truth_file(dataset_id):
+    # ground truth only available for dataset 1
     p = (Path(__file__).parent
          / "Ground truth for dataset1-20260506"
          / "wumpus_trajectory.txt")
@@ -116,14 +110,13 @@ def load_all_grids(dataset_dir):
 
 
 # ---------------------------------------------------------------------------
-# Figure factory
+# figure factory
 # ---------------------------------------------------------------------------
 
 def _make_figure(rows, cols):
     cell_px = 60
     dpi     = 100
-    # extra width on the right for the legend
-    fig_w = max(6.5, cols * cell_px / dpi + 3.4)
+    fig_w = max(6.5, cols * cell_px / dpi + 3.4)  # extra width for legend
     fig_h = max(4.5, rows * cell_px / dpi + 1.6)
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
     fig.patch.set_facecolor("white")
@@ -131,11 +124,10 @@ def _make_figure(rows, cols):
 
 
 # ---------------------------------------------------------------------------
-# Core drawing primitives
+# drawing primitives
 # ---------------------------------------------------------------------------
 
 def _draw_cells(ax, obs_grid, rows, cols):
-    """Fill cells with light orange where a detection occurred."""
     for y in range(rows):
         for x in range(cols):
             colour = _C_DETECTION if grid_value(obs_grid, y, x) else _C_EMPTY
@@ -154,7 +146,6 @@ def _draw_grid_lines(ax, rows, cols):
 
 
 def _draw_true_outline(ax, tx, ty):
-    """Green rectangle outline on the true wumpus cell."""
     if tx < 0:
         return
     ax.add_patch(mpatches.FancyBboxPatch(
@@ -168,7 +159,6 @@ def _draw_true_outline(ax, tx, ty):
 
 
 def _draw_prediction_circle(ax, mx, my):
-    """Filled blue circle on the marginal prediction cell."""
     if mx < 0:
         return
     ax.add_patch(mpatches.Circle(
@@ -211,7 +201,7 @@ def _build_legend():
 
 
 # ---------------------------------------------------------------------------
-# Render a complete frame onto an existing axes
+# render a complete frame onto an existing axes
 # ---------------------------------------------------------------------------
 
 def _render_into_ax(ax, obs_grid, rows, cols, mx, my, tx, ty, timestep):
@@ -229,7 +219,7 @@ def _render_into_ax(ax, obs_grid, rows, cols, mx, my, tx, ty, timestep):
 
 
 # ---------------------------------------------------------------------------
-# Static single-frame save / show
+# single-frame save / show
 # ---------------------------------------------------------------------------
 
 def visualize_step(grids, marginal_trajectory, timestep,
@@ -270,22 +260,14 @@ def _ascii_frame(obs_grid, rows, cols, mx, my, tx, ty, timestep):
             det  = grid_value(obs_grid, y, x)
             pred = (x == mx and y == my)
             true = (x == tx and y == ty)
-            if true and pred and det:
-                row += "!"
-            elif true and pred:
-                row += "*"
-            elif true and det:
-                row += "T"
-            elif pred and det:
-                row += "P"
-            elif true:
-                row += "t"
-            elif pred:
-                row += "o"
-            elif det:
-                row += "D"
-            else:
-                row += "."
+            if true and pred and det: row += "!"
+            elif true and pred:       row += "*"
+            elif true and det:        row += "T"
+            elif pred and det:        row += "P"
+            elif true:                row += "t"
+            elif pred:                row += "o"
+            elif det:                 row += "D"
+            else:                     row += "."
         print(row)
     print(f"Marginal: ({mx},{my})" + (f"  True: ({tx},{ty})" if tx >= 0 else ""))
 
@@ -294,8 +276,7 @@ def _ascii_frame(obs_grid, rows, cols, mx, my, tx, ty, timestep):
 # GIF export
 # ---------------------------------------------------------------------------
 
-def save_gif(grids, marginal_trajectory, gif_path,
-             ground_truth=None, fps=1.5):
+def save_gif(grids, marginal_trajectory, gif_path, ground_truth=None, fps=1.5):
     """Save all timesteps as an animated GIF."""
     if not MATPLOTLIB_AVAILABLE:
         print("Cannot save GIF: matplotlib/numpy not available.")
@@ -328,7 +309,7 @@ def save_gif(grids, marginal_trajectory, gif_path,
 
 
 # ---------------------------------------------------------------------------
-# Interactive window
+# interactive window
 # ---------------------------------------------------------------------------
 
 def play_visualization(grids, marginal_trajectory, ground_truth=None):
@@ -346,7 +327,7 @@ def play_visualization(grids, marginal_trajectory, ground_truth=None):
         fig.tight_layout(pad=1.2)
         return ax.get_children()
 
-    anim = FuncAnimation(  # noqa: F841  -- keep reference to prevent GC
+    anim = FuncAnimation(  # noqa: F841 -- keep ref to prevent GC
         fig, _update,
         frames=len(grids),
         interval=800,
@@ -404,15 +385,13 @@ def main():
         if ground_truth:
             print(f"Loaded ground truth: {len(ground_truth)} points")
 
-    # --- Save GIF first (no display needed) ---
     if MATPLOTLIB_AVAILABLE:
         save_gif(grids, marginal_traj, gif_path, ground_truth, fps=1.5)
     else:
         print("Cannot save GIF: matplotlib/numpy not available.")
 
-    # --- Interactive window ---
     if MATPLOTLIB_AVAILABLE:
-        print("\nLaunching interactive visualization window...\n")
+        print("\nLaunching interactive visualization...")
         play_visualization(grids, marginal_traj, ground_truth)
     else:
         print("\nASCII fallback (. empty  D detect  o pred  t true  P pred+det  T true+det  * true+pred  ! all):")
