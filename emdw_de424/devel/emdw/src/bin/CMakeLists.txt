@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Root of the project repo (5 levels up from this file)
-set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..)
+# emdw_de424/devel/emdw/src/bin -> ../../../../../ = repo root
+set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
 
 set(WUMPUS_SRC     ${PROJECT_ROOT}/src)
 set(WUMPUS_INC     ${PROJECT_ROOT}/include)
