@@ -8,7 +8,7 @@
 // makes the true cell ambiguous, but on clean data (pw=0.95, pc=0.05)
 // with a single firing cell it should always pass.
 
-#include "../../src/wumpus_model.hpp"
+#include "wumpus_model.hpp"
 #include "emdw.hpp"
 #include <cassert>
 #include <cstdio>

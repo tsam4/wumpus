@@ -6,7 +6,7 @@
 // - Interior cell has no self-loop; all 4 neighbours at 0.25
 // - Top-edge cell has 1 out-of-bounds => stay = 0.25
 
-#include "../../src/wumpus_model.hpp"
+#include "wumpus_model.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdio>

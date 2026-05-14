@@ -7,7 +7,7 @@
 //
 // Set env var SKIP_SLOW=1 to skip this test in constrained CI environments.
 
-#include "../../src/wumpus_model.hpp"
+#include "wumpus_model.hpp"
 #include "emdw.hpp"
 #include <cassert>
 #include <cmath>

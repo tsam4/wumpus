@@ -6,7 +6,7 @@
 // - EM with all-one observations completes without crash or NaN
 // - pw/pc remain strictly in (0, 1) after each M-step
 
-#include "../../src/wumpus_model.hpp"
+#include "wumpus_model.hpp"
 #include "emdw.hpp"
 #include <cassert>
 #include <cmath>

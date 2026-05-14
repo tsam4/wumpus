@@ -8,7 +8,7 @@
 // - All gamma[t] rows sum to approximately 1.0 (valid posteriors)
 // - No NaN values anywhere in output
 
-#include "../../src/wumpus_model.hpp"
+#include "wumpus_model.hpp"
 #include "emdw.hpp"
 #include <cassert>
 #include <cmath>

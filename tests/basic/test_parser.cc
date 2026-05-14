@@ -6,7 +6,7 @@
 // - Returns false on missing file
 // - Returns false on empty file
 
-#include "../../src/wumpus_model.hpp"
+#include "wumpus_model.hpp"
 #include <cassert>
 #include <cstdio>
 #include <cstring>

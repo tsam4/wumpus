@@ -6,7 +6,7 @@
 // - clamp_prob clips 0.0 and 1.0 to safe interior values
 // - All-zero and all-one observation grids produce no NaN or -inf
 
-#include "../../src/wumpus_model.hpp"
+#include "wumpus_model.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdio>
