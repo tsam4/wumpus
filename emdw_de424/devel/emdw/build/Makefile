@@ -182,19 +182,6 @@ wumpus/fast:
 .PHONY : wumpus/fast
 
 #=============================================================================
-# Target rules for targets named test_transition
-
-# Build rule for target.
-test_transition: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_transition
-.PHONY : test_transition
-
-# fast build rule for target.
-test_transition/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/build
-.PHONY : test_transition/fast
-
-#=============================================================================
 # Target rules for targets named test_emission
 
 # Build rule for target.
@@ -208,17 +195,17 @@ test_emission/fast:
 .PHONY : test_emission/fast
 
 #=============================================================================
-# Target rules for targets named test_parser
+# Target rules for targets named test_transition
 
 # Build rule for target.
-test_parser: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_parser
-.PHONY : test_parser
+test_transition: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_transition
+.PHONY : test_transition
 
 # fast build rule for target.
-test_parser/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/build
-.PHONY : test_parser/fast
+test_transition/fast:
+	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/build
+.PHONY : test_transition/fast
 
 #=============================================================================
 # Target rules for targets named test_emdw_bp
@@ -234,17 +221,17 @@ test_emdw_bp/fast:
 .PHONY : test_emdw_bp/fast
 
 #=============================================================================
-# Target rules for targets named test_em_extremes
+# Target rules for targets named test_dataset2_scale
 
 # Build rule for target.
-test_em_extremes: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_em_extremes
-.PHONY : test_em_extremes
+test_dataset2_scale: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_dataset2_scale
+.PHONY : test_dataset2_scale
 
 # fast build rule for target.
-test_em_extremes/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/build
-.PHONY : test_em_extremes/fast
+test_dataset2_scale/fast:
+	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/build
+.PHONY : test_dataset2_scale/fast
 
 #=============================================================================
 # Target rules for targets named test_e2e_sim
@@ -260,17 +247,30 @@ test_e2e_sim/fast:
 .PHONY : test_e2e_sim/fast
 
 #=============================================================================
-# Target rules for targets named test_dataset2_scale
+# Target rules for targets named test_em_extremes
 
 # Build rule for target.
-test_dataset2_scale: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_dataset2_scale
-.PHONY : test_dataset2_scale
+test_em_extremes: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_em_extremes
+.PHONY : test_em_extremes
 
 # fast build rule for target.
-test_dataset2_scale/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/build
-.PHONY : test_dataset2_scale/fast
+test_em_extremes/fast:
+	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/build
+.PHONY : test_em_extremes/fast
+
+#=============================================================================
+# Target rules for targets named test_occ_prior_stress
+
+# Build rule for target.
+test_occ_prior_stress: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_occ_prior_stress
+.PHONY : test_occ_prior_stress
+
+# fast build rule for target.
+test_occ_prior_stress/fast:
+	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/build
+.PHONY : test_occ_prior_stress/fast
 
 # Help Target
 help:
@@ -289,7 +289,7 @@ help:
 	@echo "... test_em_extremes"
 	@echo "... test_emdw_bp"
 	@echo "... test_emission"
-	@echo "... test_parser"
+	@echo "... test_occ_prior_stress"
 	@echo "... test_transition"
 	@echo "... wumpus"
 .PHONY : help

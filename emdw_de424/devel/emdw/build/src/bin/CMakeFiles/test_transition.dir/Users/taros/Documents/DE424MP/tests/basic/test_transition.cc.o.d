@@ -1,7 +1,7 @@
 src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o: \
   /Users/taros/Documents/DE424MP/tests/basic/test_transition.cc \
-  /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/../../../include/wumpus_model.hpp \
-  /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/../../../include/wumpus.hpp \
+  /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/src/bin/../../../../../include/wumpus_model.hpp \
+  /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/src/bin/../../../../../include/wumpus.hpp \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/string \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__algorithm/max.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__algorithm/comp.h \
