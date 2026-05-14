@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# CMAKE_SOURCE_DIR = emdw_de424/devel/emdw
-# ../../../../     = repo root  (where src/ and tests/ live)
-set(WUMPUS_ROOT ${CMAKE_SOURCE_DIR}/../../../../)
+# CMAKE_SOURCE_DIR = <repo_root>/emdw_de424/devel/emdw
+# ../../../        = <repo_root>  (where src/ and tests/ live)
+set(WUMPUS_ROOT ${CMAKE_SOURCE_DIR}/../../../)
 
 # ============================================================
 # example: reference binary shipped with the emdw userguide
