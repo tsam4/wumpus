@@ -10,9 +10,9 @@
 #   make run                Run all datasets and generate outputs
 #   make demo               Quick demo: build + run all 3 datasets with verbose output
 #   make accuracy           Compute accuracy vs ground truth (all datasets with ground truth)
-#   make summary            Generate comprehensive summary report
+#   make summary            Show a brief run summary
 #   make all                Full pipeline: build + test + run + accuracy + summary
-#   make clean              Clean build artifacts and outputs
+#   make clean              Remove generated output files (results/)
 #
 #   Flag-Based Targets (use ACTIVE_DATASET flag in src/wumpus.cc):
 #   make flag-d1            Compile with ACTIVE_DATASET=1, run, visualize
@@ -26,46 +26,43 @@
 #   PROJECT_DIR: Path to this project (auto-detected)
 #   DATASET_DIR: Path to datasets (auto-detected)
 #
+# Outputs:
+#   All .txt trajectory files and .gif animations are written to results/
+#   which is gitignored and created automatically at runtime.
+#
 # ============================================================================
 
 # Configuration
 PROJECT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 EMDW_BUILD  ?= $(PROJECT_DIR)/emdw_de424/devel/emdw/build
 DATASET_DIR := $(PROJECT_DIR)/Datasets-20260506
-WUMPUS_BIN := $(EMDW_BUILD)/src/bin/wumpus
+RESULTS_DIR := $(PROJECT_DIR)/results
+WUMPUS_BIN  := $(EMDW_BUILD)/src/bin/wumpus
 WUMPUS_TEST_DIR := $(EMDW_BUILD)/src/bin
-PYTHON := $(if $(wildcard $(PROJECT_DIR)/.venv/bin/python),$(PROJECT_DIR)/.venv/bin/python,python3)
-VISUALIZER := $(PROJECT_DIR)/scripts/visualize.py
+PYTHON      := $(if $(wildcard $(PROJECT_DIR)/.venv/bin/python),$(PROJECT_DIR)/.venv/bin/python,python3)
+VISUALIZER  := $(PROJECT_DIR)/scripts/visualize.py
 ACCURACY_SCRIPT := $(PROJECT_DIR)/scripts/compute_accuracy.py
 
 # Ground truth directory pattern: "Ground truth for dataset<N>-*"
 # Each dataset may or may not have one — accuracy target discovers them at runtime.
 GT_BASE := $(PROJECT_DIR)
 
-# Output file prefixes (datasets 1-3 only)
-OUT_D1 := $(PROJECT_DIR)/out_d1
-OUT_D2 := $(PROJECT_DIR)/out_d2
-OUT_D3 := $(PROJECT_DIR)/out_d3
+# Output file prefixes — all outputs land in results/
+OUT_D1 := $(RESULTS_DIR)/out_d1
+OUT_D2 := $(RESULTS_DIR)/out_d2
+OUT_D3 := $(RESULTS_DIR)/out_d3
 
-# Dataset configurations (datasets 1-3 only)
+# Dataset directories
 D1_DIR := $(DATASET_DIR)/dataset1
 D2_DIR := $(DATASET_DIR)/dataset2
 D3_DIR := $(DATASET_DIR)/dataset3
 
-# Log file for results
-RESULTS_LOG := $(PROJECT_DIR)/RESULTS_$(shell date +%Y%m%d_%H%M%S).log
-FINAL_SUMMARY := $(PROJECT_DIR)/FINAL_SUMMARY.txt
-
-# Shell command to find and run tests
-TEST_EXECUTABLES := $(shell ls $(WUMPUS_TEST_DIR)/* 2>/dev/null | head -20)
-
 # ANSI color codes for output
-RED := \033[0;31m
+RED   := \033[0;31m
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
-BLUE := \033[0;34m
-CYAN := \033[0;36m
-NC := \033[0m  # No Color
+CYAN  := \033[0;36m
+NC    := \033[0m  # No Color
 
 # ============================================================================
 # Default target
@@ -83,7 +80,7 @@ help:
 	@echo "  accuracy       Check accuracy vs ground truth for all available datasets"
 	@echo "  summary        Show run summary"
 	@echo "  all            Full pipeline: build, test, run, accuracy, summary"
-	@echo "  clean          Remove generated files"
+	@echo "  clean          Remove generated files in results/"
 	@echo ""
 	@echo "Additional targets: run-d1 run-d2 run-d3 visualize-d1 visualize-d2 visualize-d3"
 	@echo ""
@@ -138,6 +135,7 @@ test-all: test test-advanced
 # Helper macro: run one dataset and print confirmation + trajectory preview
 # Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
 define demo_run
+	@mkdir -p $(RESULTS_DIR)
 	@echo ""
 	@echo "Dataset $(1): $(2)"
 	@echo "  $(5)"
@@ -175,6 +173,7 @@ demo: build
 
 .PHONY: run
 run: build
+	@mkdir -p $(RESULTS_DIR)
 	@echo "Running datasets 1-3..."
 	@start=$$(date +%s); \
 	echo "  Dataset 1: 5x5, 10 steps"; \
@@ -188,6 +187,7 @@ run: build
 
 .PHONY: run-d1
 run-d1: build
+	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 1: 5x5, 10 steps"
 	@start=$$(date +%s); \
 	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) >/dev/null 2>&1; \
@@ -197,6 +197,7 @@ run-d1: build
 
 .PHONY: run-d2
 run-d2: build
+	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 2: 20x20, 20 steps"
 	@start=$$(date +%s); \
 	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) >/dev/null 2>&1; \
@@ -206,6 +207,7 @@ run-d2: build
 
 .PHONY: run-d3
 run-d3: build
+	@mkdir -p $(RESULTS_DIR)
 	@echo "Dataset 3: 10x20, 20 steps"
 	@start=$$(date +%s); \
 	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) >/dev/null 2>&1; \
@@ -214,12 +216,13 @@ run-d3: build
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
 
 # ============================================================================
-# Flag-Based Targets (use ACTIVE_DATASET flag and run visualizer)
+# Flag-Based Targets (run with visualizer)
 # ============================================================================
 
 .PHONY: flag-d1 flag-d2 flag-d3
 
 flag-d1: build
+	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D1]$(NC) Flag-based Dataset1 with visualizer"
 	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1) 2>&1
 	@if [ -f "$(OUT_D1)_marginal.txt" ]; then \
@@ -230,6 +233,7 @@ flag-d1: build
 	fi
 
 flag-d2: build
+	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D2]$(NC) Flag-based Dataset2 with visualizer"
 	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2) 2>&1
 	@if [ -f "$(OUT_D2)_marginal.txt" ]; then \
@@ -240,6 +244,7 @@ flag-d2: build
 	fi
 
 flag-d3: build
+	@mkdir -p $(RESULTS_DIR)
 	@echo "$(CYAN)[FLAG-D3]$(NC) Flag-based Dataset3 with visualizer"
 	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3) 2>&1
 	@if [ -f "$(OUT_D3)_marginal.txt" ]; then \
@@ -302,15 +307,14 @@ accuracy:
 	@echo "$(GREEN)✓ Accuracy check complete$(NC)"
 
 # ============================================================================
-# Summary Targets (Generate Reports)
+# Summary Target
 # ============================================================================
 
 .PHONY: summary
 summary:
 	@echo "Run summary:"
 	@echo "  datasets run: 3"
-	@echo "  marginal outputs: $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_marginal.txt' | wc -l | tr -d ' ')"
-	@echo "  MAP outputs:      $$(find $(PROJECT_DIR) -maxdepth 1 -name 'out_d*_map.txt' | wc -l | tr -d ' ')"
+	@echo "  marginal outputs: $$(find $(RESULTS_DIR) -maxdepth 1 -name 'out_d*_marginal.txt' 2>/dev/null | wc -l | tr -d ' ')"
 	@for n in 1 2 3; do \
 		gt_dir=$$(find "$(GT_BASE)" -maxdepth 1 -type d -name "Ground truth for dataset$$n-*" 2>/dev/null | head -1); \
 		if [ -n "$$gt_dir" ] && [ -f "$$gt_dir/wumpus_trajectory.txt" ]; then \
@@ -334,9 +338,8 @@ all: build test-all run accuracy summary
 
 .PHONY: clean
 clean:
-	@echo "Removing output files..."
-	@rm -f $(OUT_D1)_*.txt $(OUT_D2)_*.txt $(OUT_D3)_*.txt
-	@rm -f $(PROJECT_DIR)/RESULTS_*.log $(PROJECT_DIR)/FINAL_SUMMARY.txt
+	@echo "Removing results/..."
+	@rm -rf $(RESULTS_DIR)
 	@echo "$(GREEN)✓ Clean complete$(NC)"
 
 .PHONY: clean-build
@@ -356,6 +359,7 @@ info:
 	@echo "EMDW Build Dir:    $(EMDW_BUILD)"
 	@echo "Wumpus Binary:     $(WUMPUS_BIN)"
 	@echo "Dataset Directory: $(DATASET_DIR)"
+	@echo "Results Directory: $(RESULTS_DIR)"
 	@echo ""
 	@echo "Dataset locations:"
 	@echo "  D1: $(D1_DIR)"

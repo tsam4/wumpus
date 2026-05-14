@@ -10,12 +10,9 @@ Datasets-20260506/
 Ground truth for dataset1-20260506/
 
 # ============================================================
-# Runtime output files
+# Runtime outputs (all written to results/)
 # ============================================================
-out_d*_marginal.txt
-out_d*_map.txt
-out_d*_anim.gif
-out_d*_anim.mp4
+results/
 err.txt
 RESULTS_*.log
 FINAL_SUMMARY.txt

@@ -8,7 +8,7 @@ cell appearance:
   blue filled circle -- marginal (BP) prediction
 
 usage: python scripts/visualize.py <dataset_id>   (default: 1)
-saves animated GIF to out_d<N>_anim.gif and opens interactive window.
+saves animated GIF to results/out_d<N>_anim.gif and opens interactive window.
 """
 
 import sys
@@ -51,8 +51,9 @@ _C_TRUE_OUTLINE = "#27ae60"   # green box -- true wumpus location
 _CIRCLE_RADIUS  = 0.33        # fraction of cell width
 _OUTLINE_LW     = 3.5         # line width for green outline
 
-# project root is one level above this script (scripts/)
+# project root is two levels above this script (scripts/visualize.py)
 _PROJECT_ROOT = Path(__file__).parent.parent
+_RESULTS_DIR  = _PROJECT_ROOT / "results"
 
 
 # ---------------------------------------------------------------------------
@@ -361,7 +362,10 @@ def main():
     if not dataset_dir:
         sys.exit(1)
 
-    out_prefix    = _PROJECT_ROOT / f"out_d{dataset_id}"
+    # ensure results/ exists
+    _RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    out_prefix    = _RESULTS_DIR / f"out_d{dataset_id}"
     marginal_file = str(out_prefix) + "_marginal.txt"
     gif_path      = str(out_prefix) + "_anim.gif"
 
