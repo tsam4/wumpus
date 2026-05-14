@@ -139,10 +139,8 @@ test-all: test test-advanced
 # Usage: $(call demo_run, N, LABEL, DIR, OUT_PREFIX, NOTE)
 define demo_run
 	@echo ""
-	@echo "$(CYAN)┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
-	@echo "$(CYAN)┃ Dataset $(1) — $(2)$(NC)"
-	@if [ -n "$(5)" ]; then echo "$(CYAN)┃ $(5)$(NC)"; fi
-	@echo "$(CYAN)┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo "Dataset $(1): $(2)"
+	@echo "  $(5)"
 	@if [ ! -d "$(3)" ]; then \
 		echo "$(RED)  ✗ Dataset dir not found: $(3)$(NC)"; exit 1; \
 	fi
@@ -158,17 +156,16 @@ define demo_run
 		echo "$(RED)  ✗ Output file not written: $$out$(NC)"; exit 1; \
 	fi; \
 	lines=$$(wc -l < "$$out" | tr -d ' '); \
-	echo "$(GREEN)  ✓ Completed in $${duration}s$(NC)"; \
-	echo "  Output: $$out ($${lines} timesteps)"; \
-	echo "  Predicted trajectory (first 3 positions):"; \
-	head -3 "$$out" | awk '{printf "    t=%-2d  x=%-2s  y=%s\n", NR-1, $$1, $$2}'
+	echo "$(GREEN)  ✓ done in $${duration}s — $${lines} timesteps written to $$(basename $$out)$(NC)"; \
+	echo "  First 3:  $$(head -3 $$out | tr '\n' ' ')"; \
+	echo "  Last 3:   $$(tail -3 $$out | tr '\n' ' ')";
 endef
 
 .PHONY: demo
 demo: build
-	$(call demo_run,1,5x5 grid 10 timesteps  pw=0.95 pc=0.05  belief propagation,$(D1_DIR),$(OUT_D1),Known parameters — single BP pass)
-	$(call demo_run,2,20x20 grid 20 timesteps  pw=0.90 pc=0.10  belief propagation,$(D2_DIR),$(OUT_D2),Known parameters — single BP pass)
-	$(call demo_run,3,10x20 grid 20 timesteps  EM parameter learning,$(D3_DIR),$(OUT_D3),Unknown pw/pc — 6 EM iterations then final BP pass)
+	$(call demo_run,1,5x5 grid  10 timesteps  pw=0.95 pc=0.05,$(D1_DIR),$(OUT_D1),known parameters - single BP pass)
+	$(call demo_run,2,20x20 grid  20 timesteps  pw=0.90 pc=0.10,$(D2_DIR),$(OUT_D2),known parameters - single BP pass)
+	$(call demo_run,3,10x20 grid  20 timesteps  EM learning,$(D3_DIR),$(OUT_D3),unknown pw/pc - 6 EM iterations then final BP pass)
 	@echo ""
 	@echo "$(GREEN)✓ Demo complete$(NC)"
 
