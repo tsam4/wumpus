@@ -37,7 +37,7 @@ GROUND_TRUTH := $(PROJECT_DIR)/Ground truth for dataset1-20260506/wumpus_traject
 WUMPUS_BIN := $(EMDW_BUILD)/src/bin/wumpus
 WUMPUS_TEST_DIR := $(EMDW_BUILD)/src/bin
 PYTHON := $(if $(wildcard $(PROJECT_DIR)/.venv/bin/python),$(PROJECT_DIR)/.venv/bin/python,python3)
-VISUALIZER := $(PROJECT_DIR)/visualize.py
+VISUALIZER := $(PROJECT_DIR)/scripts/visualize.py
 
 # Output file prefixes (datasets 1-3 only)
 OUT_D1 := $(PROJECT_DIR)/out_d1
@@ -270,7 +270,7 @@ compute-accuracy:
 	@if [ ! -f "$(GROUND_TRUTH)" ]; then \
 		echo "Ground truth not found: $(GROUND_TRUTH)"; exit 1; \
 	fi
-	@python3 "$(PROJECT_DIR)/scripts/compute_accuracy.py" "$(GROUND_TRUTH)" "$(OUT_D1)_marginal.txt" "$(OUT_D1)_map.txt"
+	@python3 "$(PROJECT_DIR)/scripts/compute_accuracy.py" "$(GROUND_TRUTH)" "$(OUT_D1)_marginal.txt"
 
 # ============================================================================
 # Summary Targets (Generate Reports)
