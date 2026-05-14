@@ -187,60 +187,18 @@ test_emdw_bp/fast:
 .PHONY : test_emdw_bp/fast
 
 # Convenience name for target.
-src/bin/CMakeFiles/test_dataset2_scale.dir/rule:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/bin/CMakeFiles/test_dataset2_scale.dir/rule
-.PHONY : src/bin/CMakeFiles/test_dataset2_scale.dir/rule
+src/bin/CMakeFiles/test_parser.dir/rule:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/bin/CMakeFiles/test_parser.dir/rule
+.PHONY : src/bin/CMakeFiles/test_parser.dir/rule
 
 # Convenience name for target.
-test_dataset2_scale: src/bin/CMakeFiles/test_dataset2_scale.dir/rule
-.PHONY : test_dataset2_scale
+test_parser: src/bin/CMakeFiles/test_parser.dir/rule
+.PHONY : test_parser
 
 # fast build rule for target.
-test_dataset2_scale/fast:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/build
-.PHONY : test_dataset2_scale/fast
-
-# Convenience name for target.
-src/bin/CMakeFiles/test_e2e_sim.dir/rule:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/bin/CMakeFiles/test_e2e_sim.dir/rule
-.PHONY : src/bin/CMakeFiles/test_e2e_sim.dir/rule
-
-# Convenience name for target.
-test_e2e_sim: src/bin/CMakeFiles/test_e2e_sim.dir/rule
-.PHONY : test_e2e_sim
-
-# fast build rule for target.
-test_e2e_sim/fast:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/build
-.PHONY : test_e2e_sim/fast
-
-# Convenience name for target.
-src/bin/CMakeFiles/test_em_extremes.dir/rule:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/bin/CMakeFiles/test_em_extremes.dir/rule
-.PHONY : src/bin/CMakeFiles/test_em_extremes.dir/rule
-
-# Convenience name for target.
-test_em_extremes: src/bin/CMakeFiles/test_em_extremes.dir/rule
-.PHONY : test_em_extremes
-
-# fast build rule for target.
-test_em_extremes/fast:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/build
-.PHONY : test_em_extremes/fast
-
-# Convenience name for target.
-src/bin/CMakeFiles/test_occ_prior_stress.dir/rule:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/bin/CMakeFiles/test_occ_prior_stress.dir/rule
-.PHONY : src/bin/CMakeFiles/test_occ_prior_stress.dir/rule
-
-# Convenience name for target.
-test_occ_prior_stress: src/bin/CMakeFiles/test_occ_prior_stress.dir/rule
-.PHONY : test_occ_prior_stress
-
-# fast build rule for target.
-test_occ_prior_stress/fast:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/build
-.PHONY : test_occ_prior_stress/fast
+test_parser/fast:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/build
+.PHONY : test_parser/fast
 
 Users/taros/Documents/DE424MP/src/wumpus.o: Users/taros/Documents/DE424MP/src/wumpus.cc.o
 .PHONY : Users/taros/Documents/DE424MP/src/wumpus.o
@@ -275,10 +233,7 @@ Users/taros/Documents/DE424MP/src/wumpus_model.cc.o:
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
 .PHONY : Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
 
 Users/taros/Documents/DE424MP/src/wumpus_model.i: Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
@@ -290,10 +245,7 @@ Users/taros/Documents/DE424MP/src/wumpus_model.cc.i:
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
 .PHONY : Users/taros/Documents/DE424MP/src/wumpus_model.cc.i
 
 Users/taros/Documents/DE424MP/src/wumpus_model.s: Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
@@ -305,179 +257,104 @@ Users/taros/Documents/DE424MP/src/wumpus_model.cc.s:
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
 	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
 .PHONY : Users/taros/Documents/DE424MP/src/wumpus_model.cc.s
 
-Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.o: Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.o
+Users/taros/Documents/DE424MP/tests/test_emdw_bp.o: Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emdw_bp.o
 
 # target to build an object file
-Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.o:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.o
+Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o
 
-Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.i: Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.i
+Users/taros/Documents/DE424MP/tests/test_emdw_bp.i: Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emdw_bp.i
 
 # target to preprocess a source file
-Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.i:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.i
+Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.i:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.i
 
-Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.s: Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.s
+Users/taros/Documents/DE424MP/tests/test_emdw_bp.s: Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emdw_bp.s
 
 # target to generate assembly for a file
-Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.s:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.cc.s
+Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.s:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.s
 
-Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.o: Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.o
+Users/taros/Documents/DE424MP/tests/test_emission.o: Users/taros/Documents/DE424MP/tests/test_emission.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emission.o
 
 # target to build an object file
-Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.o:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.o
+Users/taros/Documents/DE424MP/tests/test_emission.cc.o:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/tests/test_emission.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emission.cc.o
 
-Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.i: Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.i
+Users/taros/Documents/DE424MP/tests/test_emission.i: Users/taros/Documents/DE424MP/tests/test_emission.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emission.i
 
 # target to preprocess a source file
-Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.i:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.i
+Users/taros/Documents/DE424MP/tests/test_emission.cc.i:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/tests/test_emission.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emission.cc.i
 
-Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.s: Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.s
+Users/taros/Documents/DE424MP/tests/test_emission.s: Users/taros/Documents/DE424MP/tests/test_emission.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emission.s
 
 # target to generate assembly for a file
-Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.s:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.cc.s
+Users/taros/Documents/DE424MP/tests/test_emission.cc.s:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/tests/test_emission.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_emission.cc.s
 
-Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.o: Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.o
+Users/taros/Documents/DE424MP/tests/test_parser.o: Users/taros/Documents/DE424MP/tests/test_parser.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_parser.o
 
 # target to build an object file
-Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.o:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.o
+Users/taros/Documents/DE424MP/tests/test_parser.cc.o:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/tests/test_parser.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_parser.cc.o
 
-Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.i: Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.i
+Users/taros/Documents/DE424MP/tests/test_parser.i: Users/taros/Documents/DE424MP/tests/test_parser.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_parser.i
 
 # target to preprocess a source file
-Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.i:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.i
+Users/taros/Documents/DE424MP/tests/test_parser.cc.i:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/tests/test_parser.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_parser.cc.i
 
-Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.s: Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.s
+Users/taros/Documents/DE424MP/tests/test_parser.s: Users/taros/Documents/DE424MP/tests/test_parser.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_parser.s
 
 # target to generate assembly for a file
-Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.s:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.cc.s
+Users/taros/Documents/DE424MP/tests/test_parser.cc.s:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/tests/test_parser.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_parser.cc.s
 
-Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.o: Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.o
+Users/taros/Documents/DE424MP/tests/test_transition.o: Users/taros/Documents/DE424MP/tests/test_transition.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_transition.o
 
 # target to build an object file
-Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.o:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.o
+Users/taros/Documents/DE424MP/tests/test_transition.cc.o:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o
+.PHONY : Users/taros/Documents/DE424MP/tests/test_transition.cc.o
 
-Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.i: Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.i
-
-# target to preprocess a source file
-Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.i:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.i
-
-Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.s: Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.s
-
-# target to generate assembly for a file
-Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.s:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.cc.s
-
-Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.o: Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.o
-
-# target to build an object file
-Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o
-
-Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.i: Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.i
+Users/taros/Documents/DE424MP/tests/test_transition.i: Users/taros/Documents/DE424MP/tests/test_transition.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_transition.i
 
 # target to preprocess a source file
-Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.i:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.i
+Users/taros/Documents/DE424MP/tests/test_transition.cc.i:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.i
+.PHONY : Users/taros/Documents/DE424MP/tests/test_transition.cc.i
 
-Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.s: Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.s
-
-# target to generate assembly for a file
-Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.s:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emdw_bp.dir/build.make src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.s
-
-Users/taros/Documents/DE424MP/tests/basic/test_emission.o: Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emission.o
-
-# target to build an object file
-Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.o:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.o
-
-Users/taros/Documents/DE424MP/tests/basic/test_emission.i: Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emission.i
-
-# target to preprocess a source file
-Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.i:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.i
-
-Users/taros/Documents/DE424MP/tests/basic/test_emission.s: Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emission.s
+Users/taros/Documents/DE424MP/tests/test_transition.s: Users/taros/Documents/DE424MP/tests/test_transition.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_transition.s
 
 # target to generate assembly for a file
-Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.s:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_emission.dir/build.make src/bin/CMakeFiles/test_emission.dir/Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_emission.cc.s
-
-Users/taros/Documents/DE424MP/tests/basic/test_transition.o: Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_transition.o
-
-# target to build an object file
-Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o
-
-Users/taros/Documents/DE424MP/tests/basic/test_transition.i: Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_transition.i
-
-# target to preprocess a source file
-Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.i:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.i
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.i
-
-Users/taros/Documents/DE424MP/tests/basic/test_transition.s: Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_transition.s
-
-# target to generate assembly for a file
-Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.s:
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.s
-.PHONY : Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.s
+Users/taros/Documents/DE424MP/tests/test_transition.cc.s:
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build && $(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_transition.dir/build.make src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.s
+.PHONY : Users/taros/Documents/DE424MP/tests/test_transition.cc.s
 
 example.o: example.cc.o
 .PHONY : example.o
@@ -512,12 +389,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... example"
-	@echo "... test_dataset2_scale"
-	@echo "... test_e2e_sim"
-	@echo "... test_em_extremes"
 	@echo "... test_emdw_bp"
 	@echo "... test_emission"
-	@echo "... test_occ_prior_stress"
+	@echo "... test_parser"
 	@echo "... test_transition"
 	@echo "... wumpus"
 	@echo "... Users/taros/Documents/DE424MP/src/wumpus.o"
@@ -526,27 +400,18 @@ help:
 	@echo "... Users/taros/Documents/DE424MP/src/wumpus_model.o"
 	@echo "... Users/taros/Documents/DE424MP/src/wumpus_model.i"
 	@echo "... Users/taros/Documents/DE424MP/src/wumpus_model.s"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.o"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.i"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_dataset2_scale.s"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.o"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.i"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_e2e_sim.s"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.o"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.i"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_em_extremes.s"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.o"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.i"
-	@echo "... Users/taros/Documents/DE424MP/tests/advanced/test_occ_prior_stress.s"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.o"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.i"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.s"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_emission.o"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_emission.i"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_emission.s"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_transition.o"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_transition.i"
-	@echo "... Users/taros/Documents/DE424MP/tests/basic/test_transition.s"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_emdw_bp.o"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_emdw_bp.i"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_emdw_bp.s"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_emission.o"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_emission.i"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_emission.s"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_parser.o"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_parser.i"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_parser.s"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_transition.o"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_transition.i"
+	@echo "... Users/taros/Documents/DE424MP/tests/test_transition.s"
 	@echo "... example.o"
 	@echo "... example.i"
 	@echo "... example.s"

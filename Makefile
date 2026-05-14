@@ -1,6 +1,5 @@
 # ============================================================================
-# Comprehensive Makefile: Build, Test, Run All Datasets, and Report Results
-# ============================================================================
+# Makefile: Build, Test, Run All Datasets, and Report Results
 #
 # Targets:
 #   make build              Build the wumpus executable and all tests
@@ -10,12 +9,6 @@
 #   make accuracy           Compute accuracy vs ground truth (all datasets with ground truth)
 #   make all                Full pipeline: build + test + run + accuracy
 #   make clean              Remove generated output files (results/ + emdw runtime artifacts)
-#
-#   Flag-Based Targets (use ACTIVE_DATASET flag in src/wumpus.cc):
-#   make flag-d1            Compile with ACTIVE_DATASET=1, run, visualize
-#   make flag-d2            Compile with ACTIVE_DATASET=2, run, visualize
-#   make flag-d3            Compile with ACTIVE_DATASET=3, run, visualize
-#   make visualize-d<N>     Generate visualizations for dataset N
 #
 # Environment:
 #   EMDW_BUILD:  Path to emdw build directory (default: repo-local)
@@ -63,7 +56,6 @@ NC     := \033[0m  # No Color
 
 # ============================================================================
 # Default target
-# ============================================================================
 .PHONY: help
 help:
 	@echo "Wumpus Tracker Makefile"
@@ -91,12 +83,11 @@ build:
 
 # ============================================================================
 # Test Targets
-# Tests cover the four components required by the project spec:
+# Tests cover four  required by the project spec:
 #   test_parser     -- detection file parsing
 #   test_emission   -- emission factor (pw / pc)
 #   test_transition -- transition factor (wumpus movement)
 #   test_emdw_bp    -- belief propagation via emdw
-# ============================================================================
 
 .PHONY: test
 test: build

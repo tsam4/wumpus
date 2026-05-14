@@ -72,19 +72,19 @@ include src/bin/CMakeFiles/test_emdw_bp.dir/flags.make
 src/bin/CMakeFiles/test_emdw_bp.dir/codegen:
 .PHONY : src/bin/CMakeFiles/test_emdw_bp.dir/codegen
 
-src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o: src/bin/CMakeFiles/test_emdw_bp.dir/flags.make
-src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o: /Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc
-src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o: src/bin/CMakeFiles/test_emdw_bp.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o"
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o -MF CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o.d -o CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o -c /Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc
+src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o: src/bin/CMakeFiles/test_emdw_bp.dir/flags.make
+src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o: /Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc
+src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o: src/bin/CMakeFiles/test_emdw_bp.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o"
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o -MF CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o.d -o CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o -c /Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc
 
-src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.i"
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc > CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.i
+src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.i"
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc > CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.i
 
-src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.s"
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc -o CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.s
+src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.s"
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc -o CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.s
 
 src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o: src/bin/CMakeFiles/test_emdw_bp.dir/flags.make
 src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o: /Users/taros/Documents/DE424MP/src/wumpus_model.cc
@@ -102,13 +102,13 @@ src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_mod
 
 # Object files for target test_emdw_bp
 test_emdw_bp_OBJECTS = \
-"CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o" \
+"CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o" \
 "CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o"
 
 # External object files for target test_emdw_bp
 test_emdw_bp_EXTERNAL_OBJECTS =
 
-src/bin/test_emdw_bp: src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o
+src/bin/test_emdw_bp: src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o
 src/bin/test_emdw_bp: src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
 src/bin/test_emdw_bp: src/bin/CMakeFiles/test_emdw_bp.dir/build.make
 src/bin/test_emdw_bp: src/libemdw.dylib

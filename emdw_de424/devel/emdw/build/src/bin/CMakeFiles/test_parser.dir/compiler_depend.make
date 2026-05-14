@@ -929,7 +929,7 @@ src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/src/wumpus_mode
   /Users/taros/devel/prlite/src/prlite_vector.hpp \
   /Users/taros/devel/prlite/src/prlite_vector.tcc
 
-src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/tests/basic/test_parser.cc.o: /Users/taros/Documents/DE424MP/tests/basic/test_parser.cc \
+src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/tests/test_parser.cc.o: /Users/taros/Documents/DE424MP/tests/test_parser.cc \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -2623,6 +2623,8 @@ src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/tests/basic/tes
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__random/bernoulli_distribution.h:
 
+/Users/taros/Documents/DE424MP/tests/test_parser.cc:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__math/inverse_trigonometric_functions.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__utility/element_count.h:
@@ -3598,8 +3600,6 @@ src/bin/CMakeFiles/test_parser.dir/Users/taros/Documents/DE424MP/tests/basic/tes
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__atomic/contention_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__fwd/queue.h:
-
-/Users/taros/Documents/DE424MP/tests/basic/test_parser.cc:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__algorithm/copy_move_common.h:
 

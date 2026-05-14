@@ -9,7 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/taros/Documents/DE424MP/src/wumpus_model.cc" "src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o" "gcc" "src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o.d"
-  "/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc" "src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o" "gcc" "src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o.d"
+  "/Users/taros/Documents/DE424MP/tests/test_transition.cc" "src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o" "gcc" "src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

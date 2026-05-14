@@ -72,19 +72,19 @@ include src/bin/CMakeFiles/test_transition.dir/flags.make
 src/bin/CMakeFiles/test_transition.dir/codegen:
 .PHONY : src/bin/CMakeFiles/test_transition.dir/codegen
 
-src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o: src/bin/CMakeFiles/test_transition.dir/flags.make
-src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o: /Users/taros/Documents/DE424MP/tests/basic/test_transition.cc
-src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o: src/bin/CMakeFiles/test_transition.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o"
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o -MF CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o.d -o CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o -c /Users/taros/Documents/DE424MP/tests/basic/test_transition.cc
+src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o: src/bin/CMakeFiles/test_transition.dir/flags.make
+src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o: /Users/taros/Documents/DE424MP/tests/test_transition.cc
+src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o: src/bin/CMakeFiles/test_transition.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o"
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o -MF CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o.d -o CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o -c /Users/taros/Documents/DE424MP/tests/test_transition.cc
 
-src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.i"
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/taros/Documents/DE424MP/tests/basic/test_transition.cc > CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.i
+src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.i"
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/taros/Documents/DE424MP/tests/test_transition.cc > CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.i
 
-src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.s"
-	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/taros/Documents/DE424MP/tests/basic/test_transition.cc -o CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.s
+src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.s"
+	cd /Users/taros/Documents/DE424MP/emdw_de424/devel/emdw/build/src/bin && g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/taros/Documents/DE424MP/tests/test_transition.cc -o CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.s
 
 src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o: src/bin/CMakeFiles/test_transition.dir/flags.make
 src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o: /Users/taros/Documents/DE424MP/src/wumpus_model.cc
@@ -102,13 +102,13 @@ src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_
 
 # Object files for target test_transition
 test_transition_OBJECTS = \
-"CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o" \
+"CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o" \
 "CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o"
 
 # External object files for target test_transition
 test_transition_EXTERNAL_OBJECTS =
 
-src/bin/test_transition: src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o
+src/bin/test_transition: src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o
 src/bin/test_transition: src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_model.cc.o
 src/bin/test_transition: src/bin/CMakeFiles/test_transition.dir/build.make
 src/bin/test_transition: src/libemdw.dylib

@@ -929,7 +929,7 @@ src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/src/wumpus_mod
   /Users/taros/devel/prlite/src/prlite_vector.hpp \
   /Users/taros/devel/prlite/src/prlite_vector.tcc
 
-src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc.o: /Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc \
+src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc.o: /Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -1812,6 +1812,8 @@ src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/te
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/cassert:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/_static_assert.h:
+
+/Users/taros/Documents/DE424MP/tests/test_emdw_bp.cc:
 
 /Users/taros/devel/prlite/src/prlite_vector.tcc:
 
@@ -3072,8 +3074,6 @@ src/bin/CMakeFiles/test_emdw_bp.dir/Users/taros/Documents/DE424MP/tests/basic/te
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__type_traits/is_allocator.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/mem_fn.h:
-
-/Users/taros/Documents/DE424MP/tests/basic/test_emdw_bp.cc:
 
 /Users/taros/Documents/DE424MP/include/wumpus_model.hpp:
 

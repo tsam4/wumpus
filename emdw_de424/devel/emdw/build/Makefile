@@ -221,56 +221,17 @@ test_emdw_bp/fast:
 .PHONY : test_emdw_bp/fast
 
 #=============================================================================
-# Target rules for targets named test_dataset2_scale
+# Target rules for targets named test_parser
 
 # Build rule for target.
-test_dataset2_scale: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_dataset2_scale
-.PHONY : test_dataset2_scale
+test_parser: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_parser
+.PHONY : test_parser
 
 # fast build rule for target.
-test_dataset2_scale/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_dataset2_scale.dir/build.make src/bin/CMakeFiles/test_dataset2_scale.dir/build
-.PHONY : test_dataset2_scale/fast
-
-#=============================================================================
-# Target rules for targets named test_e2e_sim
-
-# Build rule for target.
-test_e2e_sim: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_e2e_sim
-.PHONY : test_e2e_sim
-
-# fast build rule for target.
-test_e2e_sim/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_e2e_sim.dir/build.make src/bin/CMakeFiles/test_e2e_sim.dir/build
-.PHONY : test_e2e_sim/fast
-
-#=============================================================================
-# Target rules for targets named test_em_extremes
-
-# Build rule for target.
-test_em_extremes: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_em_extremes
-.PHONY : test_em_extremes
-
-# fast build rule for target.
-test_em_extremes/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_em_extremes.dir/build.make src/bin/CMakeFiles/test_em_extremes.dir/build
-.PHONY : test_em_extremes/fast
-
-#=============================================================================
-# Target rules for targets named test_occ_prior_stress
-
-# Build rule for target.
-test_occ_prior_stress: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_occ_prior_stress
-.PHONY : test_occ_prior_stress
-
-# fast build rule for target.
-test_occ_prior_stress/fast:
-	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_occ_prior_stress.dir/build.make src/bin/CMakeFiles/test_occ_prior_stress.dir/build
-.PHONY : test_occ_prior_stress/fast
+test_parser/fast:
+	$(MAKE) $(MAKESILENT) -f src/bin/CMakeFiles/test_parser.dir/build.make src/bin/CMakeFiles/test_parser.dir/build
+.PHONY : test_parser/fast
 
 # Help Target
 help:
@@ -284,12 +245,9 @@ help:
 	@echo "... emdwlda"
 	@echo "... example"
 	@echo "... simlda"
-	@echo "... test_dataset2_scale"
-	@echo "... test_e2e_sim"
-	@echo "... test_em_extremes"
 	@echo "... test_emdw_bp"
 	@echo "... test_emission"
-	@echo "... test_occ_prior_stress"
+	@echo "... test_parser"
 	@echo "... test_transition"
 	@echo "... wumpus"
 .PHONY : help

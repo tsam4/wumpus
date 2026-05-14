@@ -929,7 +929,7 @@ src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/src/wumpus_
   /Users/taros/devel/prlite/src/prlite_vector.hpp \
   /Users/taros/devel/prlite/src/prlite_vector.tcc
 
-src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc.o: /Users/taros/Documents/DE424MP/tests/basic/test_transition.cc \
+src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/test_transition.cc.o: /Users/taros/Documents/DE424MP/tests/test_transition.cc \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/AvailabilityInternalLegacy.h \
@@ -1812,8 +1812,6 @@ src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/cassert:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/_static_assert.h:
-
-/Users/taros/Documents/DE424MP/tests/basic/test_transition.cc:
 
 /Users/taros/devel/prlite/src/prlite_vector.tcc:
 
@@ -3500,6 +3498,8 @@ src/bin/CMakeFiles/test_transition.dir/Users/taros/Documents/DE424MP/tests/basic
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__numeric/pstl.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__algorithm/replace_if.h:
+
+/Users/taros/Documents/DE424MP/tests/test_transition.cc:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__algorithm/nth_element.h:
 
