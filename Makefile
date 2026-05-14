@@ -8,6 +8,7 @@
 #   make test-advanced      Run advanced integration tests
 #   make test-all           Run all tests (basic + advanced)
 #   make run                Run all datasets and generate outputs
+#   make demo               Quick demo: build + run dataset1 with verbose output
 #   make accuracy           Compute accuracy vs ground truth (dataset1 only)
 #   make summary            Generate comprehensive summary report
 #   make all                Full pipeline: build + test + run + accuracy + summary
@@ -20,7 +21,7 @@
 #   make visualize-d<N>     Generate visualizations for dataset N
 #
 # Environment:
-#   EMDW_BUILD:  Path to emdw build directory (default: ~/devel/emdw/build)
+#   EMDW_BUILD:  Path to emdw build directory (default: repo-local)
 #   WUMPUS_BIN:  Path to wumpus executable
 #   PROJECT_DIR: Path to this project (auto-detected)
 #   DATASET_DIR: Path to datasets (auto-detected)
@@ -29,8 +30,8 @@
 # ============================================================================
 
 # Configuration
-EMDW_BUILD ?= $(HOME)/devel/emdw/build
 PROJECT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+EMDW_BUILD  ?= $(PROJECT_DIR)/emdw_de424/devel/emdw/build
 DATASET_DIR := $(PROJECT_DIR)/Datasets-20260506
 GROUND_TRUTH := $(PROJECT_DIR)/Ground truth for dataset1-20260506/wumpus_trajectory.txt
 WUMPUS_BIN := $(EMDW_BUILD)/src/bin/wumpus
@@ -75,6 +76,7 @@ help:
 	@echo "  test-advanced  Run advanced integration tests"
 	@echo "  test-all       Run all tests"
 	@echo "  run            Execute datasets 1-3"
+	@echo "  demo           Quick demo: build + run dataset1 with verbose output"
 	@echo "  accuracy       Check Dataset1 against ground truth"
 	@echo "  summary        Show run summary"
 	@echo "  all            Full pipeline: build, test, run, accuracy, summary"
@@ -89,13 +91,8 @@ help:
 
 .PHONY: build
 build:
-	@echo "Building wumpus..."
-	@cd $(EMDW_BUILD) && cmake .. >/dev/null 2>&1 && make -j7 wumpus >/dev/null 2>&1
-	@if [ -f $(WUMPUS_BIN) ]; then \
-		echo "Build OK"; \
-	else \
-		echo "Build failed"; exit 1; \
-	fi
+	cmake -S emdw_de424/devel/emdw -B emdw_de424/devel/emdw/build -DCMAKE_BUILD_TYPE=Release
+	cmake --build emdw_de424/devel/emdw/build --parallel 12
 
 # ============================================================================
 # Test Targets (Unit Tests)
@@ -129,6 +126,35 @@ test-advanced: build
 test-all: test test-advanced
 	@echo ""
 	@echo "$(GREEN)✓ All tests complete$(NC)"
+
+# ============================================================================
+# Demo Target
+# ============================================================================
+
+.PHONY: demo
+demo: build
+	@echo ""
+	@echo "============================================================"
+	@echo " Dataset 1 — 5×5 grid, 10 timesteps (pw=0.95, pc=0.05)"
+	@echo "============================================================"
+	@if [ ! -d "$(D1_DIR)" ]; then \
+		echo "ERROR: Dataset not found at $(D1_DIR)"; \
+		echo "Make sure Datasets-20260506/ is in $(PROJECT_DIR)"; \
+		exit 1; \
+	fi
+	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
+	@echo ""
+	@echo "============================================================"
+	@echo " Dataset 2 — 20×20 grid, 20 timesteps"
+	@echo "============================================================"
+	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
+	@echo ""
+	@echo "============================================================"
+	@echo " Dataset 3 — 10×20 grid, 20 timesteps (EM learning)"
+	@echo "============================================================"
+	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
+	@echo ""
+	@echo "$(GREEN)✓ Demo complete. Output files written to $(PROJECT_DIR)/out_d*.txt$(NC)"
 
 # ============================================================================
 # Run Targets (Execute Datasets)
