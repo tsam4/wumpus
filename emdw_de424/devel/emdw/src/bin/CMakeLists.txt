@@ -7,8 +7,8 @@ set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..)
 
 set(WUMPUS_SRC     ${PROJECT_ROOT}/src)
 set(WUMPUS_INC     ${PROJECT_ROOT}/include)
-set(TESTS_BASIC    ${PROJECT_ROOT}/tests_basic)
-set(TESTS_ADVANCED ${PROJECT_ROOT}/tests_advanced)
+set(TESTS_BASIC    ${PROJECT_ROOT}/tests/basic)
+set(TESTS_ADVANCED ${PROJECT_ROOT}/tests/advanced)
 
 add_executable(example example.cc)
 target_link_libraries(example emdw)
