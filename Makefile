@@ -11,7 +11,6 @@
 #
 # Per-dataset convenience:
 #   make run-d1/2/3        Run a single dataset (no visualizer)
-#   make flag-d1/2/3       Run a single dataset + visualize
 #   make visualize-d1/2/3  Re-run visualizer on existing output files
 #
 # Environment you can override:
@@ -194,45 +193,6 @@ run-d3: build
 	status=$$?; duration=$$(( $$(date +%s) - start )); \
 	if [ $$status -ne 0 ]; then echo "  FAILED"; exit $$status; fi; \
 	echo "$(GREEN)  ✓ done in $${duration}s$(NC)"
-
-# --- Flag-based targets ------------------------------------------------------
-# These recompile (build is a dependency) then run + visualize a single dataset.
-# Useful when iterating on wumpus.cc and wanting immediate visual feedback.
-
-.PHONY: flag-d1 flag-d2 flag-d3
-
-flag-d1: build
-	@mkdir -p $(RESULTS_DIR)
-	@echo "$(CYAN)[FLAG-D1]$(NC) Dataset1 with visualizer"
-	@time $(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
-	@if [ -f "$(OUT_D1)_marginal.txt" ]; then \
-		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
-		$(PYTHON) $(VISUALIZER) 1; \
-	else \
-		echo "$(RED)✗ Output files not found$(NC)"; \
-	fi
-
-flag-d2: build
-	@mkdir -p $(RESULTS_DIR)
-	@echo "$(CYAN)[FLAG-D2]$(NC) Dataset2 with visualizer"
-	@time $(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
-	@if [ -f "$(OUT_D2)_marginal.txt" ]; then \
-		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
-		$(PYTHON) $(VISUALIZER) 2; \
-	else \
-		echo "$(RED)✗ Output files not found$(NC)"; \
-	fi
-
-flag-d3: build
-	@mkdir -p $(RESULTS_DIR)
-	@echo "$(CYAN)[FLAG-D3]$(NC) Dataset3 with visualizer"
-	@time $(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
-	@if [ -f "$(OUT_D3)_marginal.txt" ]; then \
-		echo "$(GREEN)✓ Running visualizer...$(NC)"; \
-		$(PYTHON) $(VISUALIZER) 3; \
-	else \
-		echo "$(RED)✗ Output files not found$(NC)"; \
-	fi
 
 # Re-run the visualizer on existing output files without rerunning wumpus.
 .PHONY: visualize-d1 visualize-d2 visualize-d3
