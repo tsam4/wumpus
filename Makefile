@@ -1,56 +1,134 @@
-# Makefile — Wumpus Tracker (DE424 Mini-Project)
+# ============================================================================
+# Wumpus Tracker — DE424 Mini-Project Makefile
+# ============================================================================
 #
-# All build targets delegate to the CMake project inside
-# emdw_de424/devel/emdw/build/.  Adjust BUILD_DIR if your build
-# directory lives elsewhere.
+# USAGE (most common):
+#   make            → configure + build everything (first time, or after clean)
+#   make demo       → run tracker on all three datasets, print trajectories
+#   make tests      → build + run unit tests (transition, emission, parser, BP)
+#   make clean      → remove all build artefacts
 #
-# Targets:
-#   make all             — configure + build everything
-#   make wumpus          — build only the tracker binary
-#   make tests_basic     — build + run required unit tests
-#   make tests_advanced  — build + run extended tests
-#   make clean           — clean CMake build artefacts
-#   make help            — list targets
+# Less common:
+#   make configure  → cmake configure only (called automatically by 'make')
+#   make build      → compile only (skips cmake)
+#   make help       → print this list
+#
+# Paths (adjust if your tree differs):
+#   BUILD_DIR  — CMake build directory
+#   DATA_DIR   — root folder containing dataset1/, dataset2/, dataset3/
+#   OUT_DIR    — where trajectory files are written
+# ============================================================================
 
 BUILD_DIR := emdw_de424/devel/emdw/build
 BIN_DIR   := $(BUILD_DIR)/src/bin
+DATA_DIR  := data
+OUT_DIR   := results
 
-.PHONY: all wumpus tests_basic tests_advanced clean help
+.PHONY: all configure build demo tests clean help
 
-## Configure + build all targets
-all:
-	cd $(BUILD_DIR) && cmake ../ -DCMAKE_BUILD_TYPE=Release && make -j$$(nproc)
+# ----------------------------------------------------------------------------
+# all: configure + build (default target)
+# ----------------------------------------------------------------------------
+all: configure build
 
-## Build only the wumpus binary
-wumpus:
-	cd $(BUILD_DIR) && cmake ../ -DCMAKE_BUILD_TYPE=Release && \
-	  make -j$$(nproc) wumpus
+configure:
+	cmake -S emdw_de424/devel/emdw -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release
 
-## Build and run required basic unit tests
-tests_basic:
-	cd $(BUILD_DIR) && cmake ../ -DCMAKE_BUILD_TYPE=Release && \
-	  make -j$$(nproc) test_transition test_emission test_parser test_emdw_bp
-	@echo "--- Running tests_basic ---"
+build:
+	cmake --build $(BUILD_DIR) --parallel $$(nproc)
+
+# ----------------------------------------------------------------------------
+# demo: run the tracker on datasets 1-3 and print the marginal trajectories
+#
+# This is the main "show-your-work" target.  It replicates the three inference
+# scenarios required by the mini-project spec:
+#
+#   dataset1 — 5×5, 10 steps, known pw=0.95 pc=0.05
+#   dataset2 — 20×20, 20 steps, known pw=0.90 pc=0.10
+#   dataset3 — 10×20, 20 steps, unknown params → learned via EM (6 iterations)
+#
+# Output files land in $(OUT_DIR)/:
+#   ds1_marginal.txt, ds2_marginal.txt, ds3_marginal.txt
+# Each file has one "x y" coordinate per timestep — the MAP cell at that step.
+# ----------------------------------------------------------------------------
+demo: build
+	@mkdir -p $(OUT_DIR)
+
+	@echo ""
+	@echo "============================================================"
+	@echo " Dataset 1 — 5×5 grid, 10 timesteps (pw=0.95, pc=0.05)"
+	@echo "============================================================"
+	$(BIN_DIR)/wumpus $(DATA_DIR)/dataset1 1 $(OUT_DIR)/ds1
+	@echo "--- Marginal trajectory (x y per timestep) ---"
+	@cat $(OUT_DIR)/ds1_marginal.txt
+
+	@echo ""
+	@echo "============================================================"
+	@echo " Dataset 2 — 20×20 grid, 20 timesteps (pw=0.90, pc=0.10)"
+	@echo "============================================================"
+	$(BIN_DIR)/wumpus $(DATA_DIR)/dataset2 2 $(OUT_DIR)/ds2
+	@echo "--- Marginal trajectory (x y per timestep) ---"
+	@cat $(OUT_DIR)/ds2_marginal.txt
+
+	@echo ""
+	@echo "============================================================"
+	@echo " Dataset 3 — 10×20 grid, 20 timesteps (EM: pw/pc unknown)"
+	@echo "============================================================"
+	$(BIN_DIR)/wumpus $(DATA_DIR)/dataset3 3 $(OUT_DIR)/ds3
+	@echo "--- Marginal trajectory (x y per timestep) ---"
+	@cat $(OUT_DIR)/ds3_marginal.txt
+
+	@echo ""
+	@echo "All output files written to $(OUT_DIR)/"
+
+# ----------------------------------------------------------------------------
+# tests: build + run the four unit tests required by the mini-project
+#
+#   test_transition  — transition matrix correctness (border self-loops, sums)
+#   test_emission    — log-prob values, clamp, no NaN on degenerate input
+#   test_parser      — data_file*.txt round-trip, missing/empty file handling
+#   test_emdw_bp     — full 2×2 BP integration: MAP cell, normalisation, no NaN
+# ----------------------------------------------------------------------------
+tests: build
+	@echo ""
+	@echo "--- test_transition ---"
 	$(BIN_DIR)/test_transition
+
+	@echo "--- test_emission ---"
 	$(BIN_DIR)/test_emission
+
+	@echo "--- test_parser ---"
 	$(BIN_DIR)/test_parser
+
+	@echo "--- test_emdw_bp ---"
 	$(BIN_DIR)/test_emdw_bp
-	@echo "--- All basic tests passed ---"
 
-## Build and run extended tests (EM, e2e sim, scalability)
-tests_advanced:
-	cd $(BUILD_DIR) && cmake ../ -DCMAKE_BUILD_TYPE=Release && \
-	  make -j$$(nproc) test_em_extremes test_e2e_sim test_dataset2_scale
-	@echo "--- Running tests_advanced ---"
-	$(BIN_DIR)/test_em_extremes
-	$(BIN_DIR)/test_e2e_sim
-	$(BIN_DIR)/test_dataset2_scale
-	@echo "--- All advanced tests passed ---"
+	@echo ""
+	@echo "All tests passed."
 
-## Clean CMake build artefacts
+# ----------------------------------------------------------------------------
+# clean
+# ----------------------------------------------------------------------------
 clean:
-	cd $(BUILD_DIR) && make clean
+	cmake --build $(BUILD_DIR) --target clean
 
-## List available targets
+# ----------------------------------------------------------------------------
+# help
+# ----------------------------------------------------------------------------
 help:
-	@grep -E '^##' $(MAKEFILE_LIST) | sed 's/^## //'
+	@echo ""
+	@echo "Wumpus Tracker — DE424 Mini-Project"
+	@echo ""
+	@echo "  make            configure + build everything"
+	@echo "  make demo       run tracker on datasets 1-3, print trajectories"
+	@echo "  make tests      build + run unit tests"
+	@echo "  make configure  cmake configure only"
+	@echo "  make build      compile only"
+	@echo "  make clean      remove build artefacts"
+	@echo "  make help       show this message"
+	@echo ""
+	@echo "Key paths (override on command line):"
+	@echo "  BUILD_DIR = $(BUILD_DIR)"
+	@echo "  DATA_DIR  = $(DATA_DIR)"
+	@echo "  OUT_DIR   = $(OUT_DIR)"
+	@echo ""
