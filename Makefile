@@ -91,8 +91,9 @@ help:
 
 .PHONY: build
 build:
-	cmake -S emdw_de424/devel/emdw -B emdw_de424/devel/emdw/build -DCMAKE_BUILD_TYPE=Release
-	cmake --build emdw_de424/devel/emdw/build --parallel 12
+	@cmake -S emdw_de424/devel/emdw -B emdw_de424/devel/emdw/build -DCMAKE_BUILD_TYPE=Release -Wno-dev > /dev/null
+	@cmake --build emdw_de424/devel/emdw/build --parallel 12 2>&1 | grep -E "^\[|error:|warning:" | grep -v "warning:" || true
+	@echo "$(GREEN)✓ Build complete$(NC)"
 
 # ============================================================================
 # Test Targets (Unit Tests)
@@ -142,17 +143,17 @@ demo: build
 		echo "Make sure Datasets-20260506/ is in $(PROJECT_DIR)"; \
 		exit 1; \
 	fi
-	$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
+	@$(WUMPUS_BIN) $(D1_DIR) 1 $(OUT_D1)
 	@echo ""
 	@echo "============================================================"
 	@echo " Dataset 2 — 20×20 grid, 20 timesteps"
 	@echo "============================================================"
-	$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
+	@$(WUMPUS_BIN) $(D2_DIR) 2 $(OUT_D2)
 	@echo ""
 	@echo "============================================================"
 	@echo " Dataset 3 — 10×20 grid, 20 timesteps (EM learning)"
 	@echo "============================================================"
-	$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
+	@$(WUMPUS_BIN) $(D3_DIR) 3 $(OUT_D3)
 	@echo ""
 	@echo "$(GREEN)✓ Demo complete. Output files written to $(PROJECT_DIR)/out_d*.txt$(NC)"
 

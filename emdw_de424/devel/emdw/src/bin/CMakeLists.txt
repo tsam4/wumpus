@@ -2,77 +2,41 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# CMAKE_SOURCE_DIR = <repo_root>/emdw_de424/devel/emdw
-# ../../../        = <repo_root>  (where src/, include/, and tests/ live)
-set(WUMPUS_ROOT ${CMAKE_SOURCE_DIR}/../../../)
+# Root of the project repo (5 levels up from this file)
+set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..)
 
-# ============================================================
-# example: reference binary shipped with the emdw userguide
-# ============================================================
+set(WUMPUS_SRC     ${PROJECT_ROOT}/src)
+set(WUMPUS_INC     ${PROJECT_ROOT}/include)
+set(TESTS_BASIC    ${PROJECT_ROOT}/tests_basic)
+set(TESTS_ADVANCED ${PROJECT_ROOT}/tests_advanced)
+
 add_executable(example example.cc)
 target_link_libraries(example emdw)
 
-# ============================================================
-# wumpus: main DE424 tracker binary
-# ============================================================
+# ── Main wumpus executable ──────────────────────────────────────────────────
 add_executable(wumpus
-  ${WUMPUS_ROOT}/src/wumpus.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
+    ${WUMPUS_SRC}/wumpus.cc
+    ${WUMPUS_SRC}/wumpus_model.cc
 )
-target_include_directories(wumpus PRIVATE ${WUMPUS_ROOT}/include)
+target_include_directories(wumpus PRIVATE ${WUMPUS_INC})
 target_link_libraries(wumpus emdw)
 
-# ============================================================
-# tests_basic: transition, emission, parser, BP
-# ============================================================
-add_executable(test_transition
-  ${WUMPUS_ROOT}/tests/basic/test_transition.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
-)
-target_include_directories(test_transition PRIVATE ${WUMPUS_ROOT}/include)
-target_link_libraries(test_transition emdw)
+# ── Basic unit tests ────────────────────────────────────────────────────────
+foreach(TEST_NAME test_emission test_transition test_emdw_bp)
+    add_executable(${TEST_NAME}
+        ${TESTS_BASIC}/${TEST_NAME}.cc
+        ${WUMPUS_SRC}/wumpus_model.cc
+    )
+    target_include_directories(${TEST_NAME} PRIVATE ${WUMPUS_INC})
+    target_link_libraries(${TEST_NAME} emdw)
+endforeach()
 
-add_executable(test_emission
-  ${WUMPUS_ROOT}/tests/basic/test_emission.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
-)
-target_include_directories(test_emission PRIVATE ${WUMPUS_ROOT}/include)
-target_link_libraries(test_emission emdw)
-
-add_executable(test_parser
-  ${WUMPUS_ROOT}/tests/basic/test_parser.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
-)
-target_include_directories(test_parser PRIVATE ${WUMPUS_ROOT}/include)
-target_link_libraries(test_parser emdw)
-
-add_executable(test_emdw_bp
-  ${WUMPUS_ROOT}/tests/basic/test_emdw_bp.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
-)
-target_include_directories(test_emdw_bp PRIVATE ${WUMPUS_ROOT}/include)
-target_link_libraries(test_emdw_bp emdw)
-
-# ============================================================
-# tests_advanced: EM robustness, end-to-end sim, scalability
-# ============================================================
-add_executable(test_em_extremes
-  ${WUMPUS_ROOT}/tests/advanced/test_em_extremes.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
-)
-target_include_directories(test_em_extremes PRIVATE ${WUMPUS_ROOT}/include)
-target_link_libraries(test_em_extremes emdw)
-
-add_executable(test_e2e_sim
-  ${WUMPUS_ROOT}/tests/advanced/test_e2e_sim.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
-)
-target_include_directories(test_e2e_sim PRIVATE ${WUMPUS_ROOT}/include)
-target_link_libraries(test_e2e_sim emdw)
-
-add_executable(test_dataset2_scale
-  ${WUMPUS_ROOT}/tests/advanced/test_dataset2_scale.cc
-  ${WUMPUS_ROOT}/src/wumpus_model.cc
-)
-target_include_directories(test_dataset2_scale PRIVATE ${WUMPUS_ROOT}/include)
-target_link_libraries(test_dataset2_scale emdw)
+# ── Advanced tests ──────────────────────────────────────────────────────────
+foreach(TEST_NAME test_dataset2_scale test_e2e_sim test_em_extremes test_occ_prior_stress)
+    add_executable(${TEST_NAME}
+        ${TESTS_ADVANCED}/${TEST_NAME}.cc
+        ${WUMPUS_SRC}/wumpus_model.cc
+    )
+    target_include_directories(${TEST_NAME} PRIVATE ${WUMPUS_INC})
+    target_link_libraries(${TEST_NAME} emdw)
+endforeach()
