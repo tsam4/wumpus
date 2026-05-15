@@ -1,9 +1,6 @@
 .DS_Store
 
-Datasets-20260506/
-Ground truth for dataset1-20260506/
-
-results/
+*.gif
 err.txt
 RESULTS_*.log
 FINAL_SUMMARY.txt
