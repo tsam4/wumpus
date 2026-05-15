@@ -6,6 +6,8 @@ Tracks a latent Wumpus through a grid world using noisy binary detections and Lo
 
 ## Quick Start
 
+While in the root (DE424MP) directory, run:
+
 ```bash
 # Build, run all three datasets, and visualize
 make all
