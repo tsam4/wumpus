@@ -92,11 +92,12 @@ def find_dataset_dir(dataset_id):
 
 
 def find_ground_truth_file(dataset_id):
-    # ground truth only available for dataset 1
-    p = (_PROJECT_ROOT
-         / "Ground truth for dataset1-20260506"
-         / "wumpus_trajectory.txt")
-    return str(p) if p.exists() and dataset_id == 1 else None
+    # ground truth directories are named "Ground truth for dataset{N}"
+    # (no date suffix) for datasets 1-3 on this branch.
+    p = _PROJECT_ROOT / f"Ground truth for dataset{dataset_id}" / "wumpus_trajectory.txt"
+    if p.exists():
+        return str(p)
+    return None
 
 
 def load_all_grids(dataset_dir):
@@ -391,6 +392,8 @@ def main():
         ground_truth = load_trajectory_file(gt_file)
         if ground_truth:
             print(f"Loaded ground truth: {len(ground_truth)} points")
+    else:
+        print(f"No ground truth found for dataset {dataset_id}")
 
     if MATPLOTLIB_AVAILABLE:
         save_gif(grids, marginal_traj, gif_path, ground_truth, fps=1.5)
